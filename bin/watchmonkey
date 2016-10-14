@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+require "watchmonkey_cli"
+begin
+  WatchmonkeyCli::Application.dispatch(ENV, ARGV)
+rescue Interrupt
+  puts("\n\nInterrupted")
+  exit 1
+end
