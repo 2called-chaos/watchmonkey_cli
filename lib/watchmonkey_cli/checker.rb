@@ -63,9 +63,7 @@ module WatchmonkeyCli
     end
 
     def error msg
-      app.sync do
-        warn app.c(msg, :red)
-      end
+      app.sync { app.error(msg) }
     end
 
     # def to_s

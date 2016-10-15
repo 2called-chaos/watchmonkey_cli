@@ -76,6 +76,10 @@ module WatchmonkeyCli
       exit(exit_code)
     end
 
+    def error msg
+      warn c(msg, :red)
+    end
+
     def fetch_connection type, id, opts = {}, &initializer
       if !@connections[type] || !@connections[type][id]
         @connections[type] ||= {}
