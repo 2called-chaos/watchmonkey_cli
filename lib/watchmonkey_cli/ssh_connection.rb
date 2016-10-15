@@ -2,6 +2,16 @@ module WatchmonkeyCli
   class SshConnection
     def initialize(id, opts = {}, &initializer)
       @id = id
+
+      if opts.is_a?(String)
+        u, h = opts.split("@", 2)
+        opts = { user: u, host_name: h }
+      elsif opts[:host].is_a?(String)
+        u, h = opts[:host].split("@", 2)
+        opts = opts.merge(user: u, host_name: h)
+        opts.delete(:host)
+      end
+
       # net/ssh options
       @opts = {
         config: false,

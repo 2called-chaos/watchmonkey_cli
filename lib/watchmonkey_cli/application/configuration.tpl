@@ -16,6 +16,10 @@ ssh_connection :my_server, host_name: "example.com", user: "wheel", keys_only: t
 # Therefore you might get away with just
 ssh_connection :my_server, host_name: "example.com", user: "wheel"
 
+# There are also two shortcuts you can use...
+ssh_connection :my_server, "wheel@example.com" # no additional options possible
+ssh_connection :my_server, host: "wheel@example.com", port: 23 # additional options possible
+
 
 
 
