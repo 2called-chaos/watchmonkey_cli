@@ -31,7 +31,12 @@ module WatchmonkeyCli
       def initialize app, file
         @app = app
         @file = file
-        eval File.read(file)
+        begin
+          eval File.read(file), binding, file
+        rescue
+          app.error "Invalid config file #{file}"
+          raise
+        end
       end
 
       def ssh_connection name, opts = {}, &b
