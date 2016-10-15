@@ -35,6 +35,7 @@ module WatchmonkeyCli
         debug: false,
         threads: 10,
         loop_forever: false,
+        silent: false,
         quiet: false,
       }
       init_params
@@ -48,6 +49,7 @@ module WatchmonkeyCli
         opts.separator(c "# Application options", :blue)
         opts.on("--generate-config [myconfig]", "Generates a example config in ~/.watchmonkey") {|s| @opts[:dispatch] = :generate_config; @opts[:config_name] = s }
         opts.on("-t", "--threads [NUM]", Integer, "Amount of threads to be used for checking (default: 10)") {|s| @opts[:threads] = s }
+        opts.on("-s", "--silent", "Only print errors and infos") { @opts[:silent] = true }
         opts.on("-q", "--quiet", "Only print errors") { @opts[:quiet] = true }
 
         opts.separator("\n" << c("# General options", :blue))

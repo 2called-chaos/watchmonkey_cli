@@ -52,13 +52,13 @@ module WatchmonkeyCli
 
     def log msg
       app.sync do
-        puts app.c(msg, :blue) unless app.opts[:quiet]
+        puts app.c(msg, :blue) if !app.opts[:quiet]
       end
     end
 
     def debug msg
       app.sync do
-        puts app.c(msg, :black) unless app.opts[:quiet]
+        puts app.c(msg, :black) if !app.opts[:quiet] && !app.opts[:silent]
       end
     end
 
