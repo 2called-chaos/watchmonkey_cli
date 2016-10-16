@@ -21,6 +21,7 @@ require 'net/ssh'
 require "watchmonkey_cli/version"
 require "watchmonkey_cli/loopback_connection"
 require "watchmonkey_cli/ssh_connection"
+require "watchmonkey_cli/helpers"
 require "watchmonkey_cli/checker"
 require "watchmonkey_cli/application/colorize"
 require "watchmonkey_cli/application/configuration"

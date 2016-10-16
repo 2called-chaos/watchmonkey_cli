@@ -40,7 +40,7 @@ module WatchmonkeyCli
     end
 
     def close!
-      @ssh.try(:close) #rescue false
+      @ssh.try(:close) rescue false
     end
   end
 end

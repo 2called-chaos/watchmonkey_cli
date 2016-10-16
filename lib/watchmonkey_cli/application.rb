@@ -1,12 +1,11 @@
 module WatchmonkeyCli
   class Application
     attr_reader :opts, :checkers, :connections, :threads, :queue
+    include Helpers
     include Colorize
     include Dispatch
     include Configuration::AppHelper
     include Checker::AppHelper
-    # include Filter
-    # include Helpers
 
     # =========
     # = Setup =
