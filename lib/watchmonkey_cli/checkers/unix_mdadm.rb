@@ -4,7 +4,7 @@ module WatchmonkeyCli
       self.checker_name = "unix_mdadm"
 
       def enqueue config, host, opts = {}
-        app.queue << -> {
+        app.enqueue(self) do
           opts = { log_checking: true }.merge(opts)
           host = app.fetch_connection(:loopback, :local) if !host || host == :local
           host = app.fetch_connection(:ssh, host) if host.is_a?(Symbol)
@@ -12,7 +12,7 @@ module WatchmonkeyCli
           debug(result.str_running)
           safe(result.str_safe) { check!(result, host, opts) }
           result.dump!
-        }
+        end
       end
 
       def check! result, host, opts = {}

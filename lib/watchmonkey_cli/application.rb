@@ -140,10 +140,18 @@ module WatchmonkeyCli
       end
     end
 
+    def enqueue checker, &block
+      fire(:enqueue, checker, block)
+      @queue << [checker, block]
+    end
+
     def _queueoff
       while !@queue.empty? || @opts[:loop_forever]
         item = queue.pop(true) rescue false
-        item.call()
+        if item
+          item[1].call()
+          fire(:dequeue, *item)
+        end
         sleep @opts[:loop_wait_empty] if @opts[:loop_forever] && @opts[:loop_wait_empty] && @queue.empty?
       end
     end

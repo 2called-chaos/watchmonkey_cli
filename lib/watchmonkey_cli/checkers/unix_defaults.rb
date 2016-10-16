@@ -4,7 +4,7 @@ module WatchmonkeyCli
       self.checker_name = "unix_defaults"
 
       def enqueue config, host, opts = {}
-        app.queue << -> {
+        app.enqueue(self) do
           opts = { unix_load: {}, unix_memory: {}, unix_df: {}, unix_mdadm: {} }.merge(opts)
 
           # option shortcuts
@@ -21,7 +21,7 @@ module WatchmonkeyCli
               sec.enqueue(config, host, opts[which])
             end
           end
-        }
+        end
       end
 
       def check! *args

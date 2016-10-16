@@ -4,13 +4,13 @@ module WatchmonkeyCli
       self.checker_name = "ssl_expiration"
 
       def enqueue config, page, opts = {}
-        app.queue << -> {
+        app.enqueue(self) do
           opts = { threshold: 1.months }.merge(opts)
           result = Checker::Result.new(self, page, opts)
           debug(result.str_running)
           safe(result.str_safe) { check!(result, page, opts) }
           result.dump!
-        }
+        end
       end
 
       def check! result, page, opts = {}
