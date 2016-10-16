@@ -31,14 +31,15 @@ module WatchmonkeyCli
       @threads = []
       @queue = Queue.new
       @opts = {
-        dispatch: :index,
-        check_for_updates: true,
-        colorize: true,
-        debug: false,
-        threads: 10,
-        loop_forever: false,
-        silent: false,
-        quiet: false,
+        dispatch: :index,        # (internal) action to dispatch
+        check_for_updates: true, # -z flag
+        colorize: true,          # -m flag
+        debug: false,            # -d flag
+        threads: 10,             # -t flag
+        loop_forever: false,     # (internal) loop forever (app mode)
+        loop_wait_empty: 1,      # (internal) time to wait in thread if queue is empty
+        silent: false,           # -s flag
+        quiet: false,            # -q flag
       }
       init_params
       yield(self)
@@ -143,6 +144,7 @@ module WatchmonkeyCli
       while !@queue.empty? || @opts[:loop_forever]
         item = queue.pop(true) rescue false
         item.call()
+        sleep @opts[:loop_wait_empty] if @opts[:loop_forever] && @opts[:loop_wait_empty] && @queue.empty?
       end
     end
 
