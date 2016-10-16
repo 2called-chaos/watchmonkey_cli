@@ -1,6 +1,6 @@
 module WatchmonkeyCli
   class Application
-    attr_reader :opts, :checkers, :connections, :threads, :queue
+    attr_reader :opts, :checkers, :connections, :threads, :queue, :hooks
     include Helpers
     include Colorize
     include Dispatch
@@ -26,6 +26,7 @@ module WatchmonkeyCli
     def initialize env, argv
       @env, @argv = env, argv
       @connections = {}
+      @hooks = {}
       @monitor = Monitor.new
       @threads = []
       @queue = Queue.new
@@ -87,6 +88,15 @@ module WatchmonkeyCli
 
     def error msg
       warn c(msg, :red)
+    end
+
+    def hook which, &hook_block
+      @hooks[which.to_sym] ||= []
+      @hooks[which.to_sym] << hook_block
+    end
+
+    def fire which, *args
+      @hooks[which] && @hooks[which].each{|h| h.call(*args) }
     end
 
     def fetch_connection type, id, opts = {}, &initializer

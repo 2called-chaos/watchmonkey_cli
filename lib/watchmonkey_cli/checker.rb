@@ -67,6 +67,7 @@ module WatchmonkeyCli
     end
 
     def error msg
+      app.fire(:on_error, msg)
       _tolog(msg, :error)
       app.sync { app.error(msg) }
     end
