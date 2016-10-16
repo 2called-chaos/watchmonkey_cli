@@ -13,6 +13,7 @@ module WatchmonkeyCli
     # =========
     def self.dispatch *a
       new(*a) do |app|
+        app.load_config
         app.parse_params
         begin
           app.dispatch
@@ -67,6 +68,11 @@ module WatchmonkeyCli
       abort(e.message)
       dispatch(:help)
       exit 1
+    end
+
+    def load_config
+      return unless File.exist?(wm_cfg_configfile)
+      eval File.read(wm_cfg_configfile), binding, wm_cfg_configfile
     end
 
     def debug msg
@@ -129,6 +135,10 @@ module WatchmonkeyCli
 
     def wm_cfg_path
       ENV["WM_CFGDIR"].presence || File.expand_path("~/.watchmonkey")
+    end
+
+    def wm_cfg_configfile
+      "#{wm_cfg_path}/config.rb"
     end
 
     # def async &block
