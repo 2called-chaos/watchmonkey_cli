@@ -8,25 +8,27 @@ module WatchmonkeyCli
           opts = { min_percent: 25 }.merge(opts)
           host = app.fetch_connection(:loopback, :local) if !host || host == :local
           host = app.fetch_connection(:ssh, host) if host.is_a?(Symbol)
-          debug "Running checker #{self.class.checker_name} with [#{host} | #{opts}]"
-          safe("[#{self.class.checker_name} | #{host} | #{opts}]\n\t") { check!(host, opts) }
+          result = Checker::Result.new(self, host, opts)
+          debug(result.str_running)
+          safe(result.str_safe) { check!(result, host, opts) }
+          result.dump!
         }
       end
 
-      def check! host, opts = {}
-        descriptor = "[#{self.class.checker_name} | #{host} | #{opts}]\n\t"
-        res = host.exec("cat /proc/meminfo")
-        md = _parse_response(res)
+      def check! result, host, opts = {}
+        result.command = "cat /proc/meminfo"
+        result.result = host.exec(result.command)
+        result.data = _parse_response(result.result)
 
-        if md.is_a?(String)
-          error "#{descriptor}#{md}"
+        if !result.data
+          result.error! result.result
         else
-          error "#{descriptor}memory is low (limit is min. #{opts[:min_percent]}%, got #{md["free"]}%)" if opts[:min_percent] && md["free"] < opts[:min_percent]
+          result.error! "memory is low (limit is min. #{opts[:min_percent]}%, got #{result.data["free"]}%)" if opts[:min_percent] && result.data["free"] < opts[:min_percent]
         end
       end
 
       def _parse_response res
-        return res if res.downcase["no such file"]
+        return false if res.downcase["no such file"]
         {}.tap do |r|
           res.strip.split("\n").each do |line|
             chunks = line.split(":").map(&:strip)

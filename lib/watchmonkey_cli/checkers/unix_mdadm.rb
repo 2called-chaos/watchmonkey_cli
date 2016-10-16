@@ -8,34 +8,36 @@ module WatchmonkeyCli
           opts = { log_checking: true }.merge(opts)
           host = app.fetch_connection(:loopback, :local) if !host || host == :local
           host = app.fetch_connection(:ssh, host) if host.is_a?(Symbol)
-          debug "Running checker #{self.class.checker_name} with [#{host} | #{opts}]"
-          safe("[#{self.class.checker_name} | #{host} | #{opts}]\n\t") { check!(host, opts) }
+          result = Checker::Result.new(self, host, opts)
+          debug(result.str_running)
+          safe(result.str_safe) { check!(result, host, opts) }
+          result.dump!
         }
       end
 
-      def check! host, opts = {}
-        descriptor = "[#{self.class.checker_name} | #{host} | #{opts}]\n\t"
-        res = host.exec("cat /proc/mdstat")
-        md = _parse_response(res)
+      def check! result, host, opts = {}
+        result.command = "cat /proc/mdstat"
+        result.result = host.exec(result.command)
+        result.data = _parse_response(result.result)
 
-        if md.is_a?(String)
-          error "#{descriptor}#{md}"
+        if !result.data
+          result.error!(result.result)
         else
-          md[:devices].each do |rdev|
+          result.data[:devices].each do |rdev|
             dev = rdev[0].split(" ").first
             status = rdev[1].split(" ").last
             progress = rdev[2].to_s
             return if status == "chunks"
-            error "#{dev} seems broken (expected U+, got `#{status}')" if status !~ /\[U+\]/
+            result.error! "#{dev} seems broken (expected U+, got `#{status}')" if status !~ /\[U+\]/
             if opts[:log_checking] && progress && m = progress.match(/\[[=>\.]+\]\s+([^\s]+)\s+=\s+([^\s]+)\s+\(([^\/]+)\/([^\)]+)\)\s+finish=([^\s]+)\s+speed=([^\s]+)/i)
-              log "#{dev} on is checking (status:#{m[1]}|done:#{m[2]}|eta:#{m[5]}|speed:#{m[6]}|blocks_done:#{m[3]}/#{m[4]})"
+              info "#{dev} on is checking (status:#{m[1]}|done:#{m[2]}|eta:#{m[5]}|speed:#{m[6]}|blocks_done:#{m[3]}/#{m[4]})"
             end
           end
         end
       end
 
       def _parse_response res
-        return res if res.downcase["no such file"]
+        return false if res.downcase["no such file"]
 
         { devices: [] }.tap do |r|
           res = res.strip

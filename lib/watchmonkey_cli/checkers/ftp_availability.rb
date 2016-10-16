@@ -6,20 +6,21 @@ module WatchmonkeyCli
       def enqueue config, host, opts = {}
         app.queue << -> {
           opts = { threshold: 1.months }.merge(opts)
-          debug "Running checker #{self.class.checker_name} with [#{host} | #{opts}]"
-          safe("[#{self.class.checker_name} | #{host} | #{opts}]\n\t") { check!(host, opts) }
+          result = Checker::Result.new(self, host, opts)
+          debug(result.str_running)
+          safe(result.str_safe) { check!(result, host, opts) }
+          result.dump!
         }
       end
 
-      def check! host, opts = {}
-        descriptor = "[#{self.class.checker_name} | #{host} | #{opts}]\n\t"
+      def check! result, host, opts = {}
         Net::FTP.open(host) do |ftp|
           ftp.login(opts[:user], opts[:password])
         end
       rescue Net::FTPPermError
-        error "#{descriptor}Invalid credentials!"
+        result.error "Invalid credentials!"
       rescue SocketError => e
-        error "#{descriptor}#{e.class}: #{e.message}"
+        result.error "#{e.class}: #{e.message}"
       end
     end
   end

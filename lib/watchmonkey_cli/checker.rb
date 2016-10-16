@@ -41,6 +41,65 @@ module WatchmonkeyCli
       end
     end
 
+    class Result
+      attr_reader :checker, :type, :args
+      attr_accessor :result, :command, :data
+
+      def initialize checker, *args
+        @checker = checker
+        @args = args
+        @mutex = Monitor.new
+        @type = :info
+        @spool = { error: [], info: [], debug: []}
+      end
+
+      def sync &block
+        @mutex.synchronize(&block)
+      end
+
+      def descriptor
+        "[#{@checker.class.checker_name} | #{args.join(" | ")}]"
+      end
+
+      def str_safe
+        "#{descriptor}\n\t"
+      end
+
+      def str_running
+        "Running checker #{@checker.class.checker_name} with [#{args.join(" | ")}]"
+      end
+
+      def str_descriptor
+        "#{descriptor}\n\t"
+      end
+
+      def messages
+        @spool.map(&:second).flatten
+      end
+
+      def dump!
+        sync do
+          @spool.each do |t, messages|
+            while messages.any?
+              @checker.send(t, "#{str_descriptor}#{messages.shift}", self)
+            end
+          end
+        end
+      end
+
+      [:info, :debug, :error].each do |meth|
+        define_method meth do |msg|
+          sync { @spool[meth] << msg }
+        end
+        define_method :"#{meth}!" do |msg = nil|
+          sync do
+            @spool[meth] << msg if msg
+            @type = meth
+          end
+        end
+      end
+    end
+
     # -------------------
 
     attr_reader :app
@@ -50,7 +109,8 @@ module WatchmonkeyCli
       send(:init) if respond_to?(:init)
     end
 
-    def log msg
+    def info msg, robj = nil
+      app.fire(:on_info, msg, robj)
       return if app.opts[:quiet]
       _tolog(msg, :info)
       app.sync do
@@ -58,7 +118,9 @@ module WatchmonkeyCli
       end
     end
 
-    def debug msg
+    def debug msg, robj = nil
+      app.fire(:on_debug, msg, robj)
+      app.fire(:on_message, msg, robj)
       return if app.opts[:quiet] || app.opts[:silent]
       _tolog(msg, :debug)
       app.sync do
@@ -66,8 +128,9 @@ module WatchmonkeyCli
       end
     end
 
-    def error msg
-      app.fire(:on_error, msg)
+    def error msg, robj = nil
+      app.fire(:on_error, msg, robj)
+      app.fire(:on_message, msg, robj)
       _tolog(msg, :error)
       app.sync { app.error(msg) }
     end
@@ -102,6 +165,26 @@ module WatchmonkeyCli
           retry
         end
         error "#{descriptor}retries exceeded"
+      end
+    end
+
+    def rsafe resultobj, &block
+      tries = 0
+      begin
+        tries += 1
+        block.call
+      rescue StandardError => e
+        unless tries > 3
+          resultobj.sync do
+            resultobj.error! "retry #{tries} reason is `#{e.class}: #{e.message}'"
+            e.backtrace.each{|l| resultobj.debug "\t\t#{l}" }
+            resultobj.dump!
+          end
+          sleep 1
+          retry
+        end
+        resultobj.error! "#{descriptor}retries exceeded"
+        resultobj.dump!
       end
     end
 

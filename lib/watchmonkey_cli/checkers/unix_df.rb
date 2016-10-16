@@ -8,18 +8,20 @@ module WatchmonkeyCli
           opts = { min_percent: 25 }.merge(opts)
           host = app.fetch_connection(:loopback, :local) if !host || host == :local
           host = app.fetch_connection(:ssh, host) if host.is_a?(Symbol)
-          debug "Running checker #{self.class.checker_name} with [#{host} | #{opts}]"
-          safe("[#{self.class.checker_name} | #{host} | #{opts}]\n\t") { check!(host, opts) }
+          result = Checker::Result.new(self, host, opts)
+          debug(result.str_running)
+          safe(result.str_safe) { check!(result, host, opts) }
+          result.dump!
         }
       end
 
-      def check! host, opts = {}
-        descriptor = "[#{self.class.checker_name} | #{host} | #{opts}]\n\t"
-        res = host.exec("df")
-        df = _parse_response(res)
+      def check! result, host, opts = {}
+        result.command = "df"
+        result.result = host.exec(result.command)
+        result.data = _parse_response(result.result)
 
-        df.each do |fs|
-          error "#{descriptor}disk space on `#{fs[:mountpoint] || "unmounted"}' (#{fs[:filesystem]}) is low (limit is min. #{opts[:min_percent]}%, got #{fs[:free]}%)" if fs[:free] < opts[:min_percent]
+        result.data.each do |fs|
+          result.error! "#{descriptor}disk space on `#{fs[:mountpoint] || "unmounted"}' (#{fs[:filesystem]}) is low (limit is min. #{opts[:min_percent]}%, got #{fs[:free]}%)" if fs[:free] < opts[:min_percent]
         end if opts[:min_percent]
       end
 

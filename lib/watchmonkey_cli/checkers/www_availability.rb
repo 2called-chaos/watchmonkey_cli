@@ -5,8 +5,10 @@ module WatchmonkeyCli
 
       def enqueue config, page, opts = {}
         app.queue << -> {
-          debug "Running checker #{self.class.checker_name} with [#{page} | #{opts}]"
-          safe("[#{self.class.checker_name} | #{page} | #{opts}]\n\t") { check!(page, opts) }
+          result = Checker::Result.new(self, page, opts)
+          debug(result.str_running)
+          safe(result.str_safe) { check!(result, page, opts) }
+          result.dump!
 
           # if available enable ssl_expiration support
           if (sec = app.checkers["ssl_expiration"]) && page.start_with?("https://") && opts[:ssl_expiration] != false
@@ -15,39 +17,39 @@ module WatchmonkeyCli
         }
       end
 
-      def check! page, opts = {}
-        descriptor = "[#{self.class.checker_name} | #{page} | #{opts}]\n\t"
+      def check! result, page, opts = {}
         begin
           resp = HTTParty.get(page, no_follow: true, verify: false)
+          result.result = resp
         rescue HTTParty::RedirectionTooDeep => e
-          resp = e.response
+          result.result = e.response
           original_response = true
         rescue Errno::ECONNREFUSED => e
-          error "#{descriptor}Failed to fetch #{page} (#{e.class}: #{e.message})"
+          result.error! "Failed to fetch #{page} (#{e.class}: #{e.message})"
           return
         end
 
         # status
         if opts[:status]
           stati = [*opts[:status]]
-          error "#{descriptor}#{resp.code} is not in #{stati}!" if !stati.include?(resp.code.to_i)
+          result.error! "#{result.result.code} is not in #{stati}!" if !stati.include?(result.result.code.to_i)
         end
 
         # body
         if rx = opts[:body]
           if rx.is_a?(String)
-            error "#{descriptor}body does not include #{rx}!" if !resp.body.include?(rx)
+            result.error! "body does not include #{rx}!" if !result.result.body.include?(rx)
           elsif rx.is_a?(Regexp)
-            error "#{descriptor}body does not match #{rx}!" if !resp.body.match(rx)
+            result.error! "body does not match #{rx}!" if !result.result.body.match(rx)
           end
         end
 
         # headers
         if opts[:headers]
-          hdata = original_response ? resp : resp.headers
+          hdata = original_response ? result.result : result.result.headers
           opts[:headers].each do |k, v|
             if !(v.is_a?(Regexp) ? hdata[k].match(v) : hdata[k] == v)
-              error "#{descriptor}header #{k} mismatches (expected `#{v}' got `#{hdata[k] || "nil"}')"
+              result.error! "header #{k} mismatches (expected `#{v}' got `#{hdata[k] || "nil"}')"
             end
           end
         end

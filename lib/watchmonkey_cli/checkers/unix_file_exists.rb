@@ -8,18 +8,21 @@ module WatchmonkeyCli
           opts = { message: "File #{file} does not exist!" }.merge(opts)
           host = app.fetch_connection(:loopback, :local) if !host || host == :local
           host = app.fetch_connection(:ssh, host) if host.is_a?(Symbol)
-          debug "Running checker #{self.class.checker_name} with [#{host} | #{file} | #{opts}]"
-          safe("[#{self.class.checker_name} | #{host} | #{file} | #{opts}]\n\t") { check!(host, file, opts) }
+          result = Checker::Result.new(self, host, file, opts)
+          debug(result.str_running)
+          safe(result.str_safe) { check!(result, host, file, opts) }
+          result.dump!
         }
       end
 
-      def check! host, file, opts = {}
+      def check! result, host, file, opts = {}
         descriptor = "[#{self.class.checker_name} | #{host} | #{file} | #{opts}]\n\t"
         if host.is_a?(WatchmonkeyCli::LoopbackConnection)
-          error "#{descriptor}#{opts[:message]} (ENOENT)" if !File.exist?(file)
+          result.error! "#{descriptor}#{opts[:message]} (ENOENT)" if !File.exist?(file)
         else
-          res = host.exec %{test -f #{Shellwords.escape(file)} && echo exists}
-          error "#{descriptor}#{opts[:message]} (#{res.presence || "ENOENT"})" if res != "exists"
+          result.command = "test -f #{Shellwords.escape(file)} && echo exists"
+          result.result = host.exec(result.command)
+          result.error! "#{opts[:message]} (#{result.result.presence || "ENOENT"})" if result.result != "exists"
         end
       end
     end

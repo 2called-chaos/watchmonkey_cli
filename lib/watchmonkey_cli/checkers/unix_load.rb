@@ -8,20 +8,23 @@ module WatchmonkeyCli
           opts = { limits: [4, 2, 1.5] }.merge(opts)
           host = app.fetch_connection(:loopback, :local) if !host || host == :local
           host = app.fetch_connection(:ssh, host) if host.is_a?(Symbol)
-          debug "Running checker #{self.class.checker_name} with [#{host} | #{opts}]"
-          safe("[#{self.class.checker_name} | #{host} | #{opts}]\n\t") { check!(host, opts) }
+          result = Checker::Result.new(self, host, opts)
+          debug(result.str_running)
+          safe(result.str_safe) { check!(result, host, opts) }
+          result.dump!
         }
       end
 
-      def check! host, opts = {}
-        descriptor = "[#{self.class.checker_name} | #{host} | #{opts}]"
-        res = host.exec("uptime")
-        ld = _parse_response(res)
+      def check! result, host, opts = {}
+        result.command = "uptime"
+        result.result = host.exec(result.command)
+        ld = result.data = _parse_response(result.result)
 
-        descriptor += "\n\tload1 is to high (limit1 is #{opts[:limits][0]}, load1 is #{ld[0]})" if ld[0] > opts[:limits][0]
-        descriptor += "\n\tload5 is to high (limit5 is #{opts[:limits][1]}, load5 is #{ld[1]})" if ld[1] > opts[:limits][1]
-        descriptor += "\n\tload15 is to high (limit15 is #{opts[:limits][2]}, load15 is #{ld[2]})" if ld[2] > opts[:limits][2]
-        error(descriptor) if descriptor["\n"]
+        emsg = []
+        emsg << "load1 is to high (limit1 is #{opts[:limits][0]}, load1 is #{ld[0]})" if ld[0] > opts[:limits][0]
+        emsg << "load5 is to high (limit5 is #{opts[:limits][1]}, load5 is #{ld[1]})" if ld[1] > opts[:limits][1]
+        emsg << "load15 is to high (limit15 is #{opts[:limits][2]}, load15 is #{ld[2]})" if ld[2] > opts[:limits][2]
+        error!(emsg.join("\n\t")) if emsg.any?
       end
 
       def _parse_response res

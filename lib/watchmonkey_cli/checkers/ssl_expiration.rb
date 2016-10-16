@@ -6,13 +6,14 @@ module WatchmonkeyCli
       def enqueue config, page, opts = {}
         app.queue << -> {
           opts = { threshold: 1.months }.merge(opts)
-          debug "Running checker #{self.class.checker_name} with [#{page} | #{opts}]"
-          safe("[#{self.class.checker_name} | #{page} | #{opts}]\n\t") { check!(page, opts) }
+          result = Checker::Result.new(self, page, opts)
+          debug(result.str_running)
+          safe(result.str_safe) { check!(result, page, opts) }
+          result.dump!
         }
       end
 
-      def check! page, opts = {}
-        descriptor = "[#{self.class.checker_name} | #{page} | #{opts}]\n\t"
+      def check! result, page, opts = {}
         uri = URI.parse(page)
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true
@@ -23,20 +24,20 @@ module WatchmonkeyCli
         end
 
         if cert.not_before > Time.current
-          error "#{descriptor}Certificate is not yet valid (will in #{fseconds(cert.not_before - Time.current)}, #{cert.not_before})!"
+          result.error! "Certificate is not yet valid (will in #{fseconds(cert.not_before - Time.current)}, #{cert.not_before})!"
           return
         end
 
         if cert.not_after <= Time.current
-          error "#{descriptor}Certificate is EXPIRED (since #{fseconds(cert.not_after - Time.current)}, #{cert.not_after})!"
+          result.error! "Certificate is EXPIRED (since #{fseconds(cert.not_after - Time.current)}, #{cert.not_after})!"
           return
         end
 
         if cert.not_after <= Time.current + opts[:threshold]
-          error "#{descriptor}Certificate is about to expire within threshold (in #{fseconds(cert.not_after - Time.current)}, #{cert.not_after})!"
+          result.error! "Certificate is about to expire within threshold (in #{fseconds(cert.not_after - Time.current)}, #{cert.not_after})!"
           return
         else
-          log "#{descriptor}Certificate for `#{page}' expires in #{fseconds(cert.not_after - Time.current)} (#{cert.not_after})!"
+          result.info! "Certificate for `#{page}' expires in #{fseconds(cert.not_after - Time.current)} (#{cert.not_after})!"
         end
       end
 
