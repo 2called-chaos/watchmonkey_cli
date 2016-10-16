@@ -51,19 +51,29 @@ module WatchmonkeyCli
     end
 
     def log msg
+      return if app.opts[:quiet]
+      _tolog(msg, :info)
       app.sync do
-        puts app.c(msg, :blue) if !app.opts[:quiet]
+        puts app.c(msg, :blue)
       end
     end
 
     def debug msg
+      return if app.opts[:quiet] || app.opts[:silent]
+      _tolog(msg, :debug)
       app.sync do
-        puts app.c(msg, :black) if !app.opts[:quiet] && !app.opts[:silent]
+        puts app.c(msg, :black)
       end
     end
 
     def error msg
+      _tolog(msg, :error)
       app.sync { app.error(msg) }
+    end
+
+    def _tolog msg, meth = :log
+      return unless app.opts[:logfile]
+      app.logger.public_send(meth, msg)
     end
 
     # def to_s

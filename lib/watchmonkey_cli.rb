@@ -2,7 +2,7 @@ STDOUT.sync = true
 
 # stdlib
 require "benchmark"
-require "pathname"
+require "fileutils"
 require "thread"
 require "monitor"
 require "optparse"

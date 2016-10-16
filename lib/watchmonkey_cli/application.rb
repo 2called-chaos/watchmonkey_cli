@@ -17,6 +17,7 @@ module WatchmonkeyCli
         app.parse_params
         begin
           app.dispatch
+          app.debug "#{Thread.list.length} threads remain..."
         rescue Interrupt
           app.abort("Interrupted", 1)
         end
@@ -49,6 +50,7 @@ module WatchmonkeyCli
 
         opts.separator(c "# Application options", :blue)
         opts.on("--generate-config [myconfig]", "Generates a example config in ~/.watchmonkey") {|s| @opts[:dispatch] = :generate_config; @opts[:config_name] = s }
+        opts.on("-l", "--log [file]", "Log to file, defaults to ~/.watchmonkey/logs/watchmonkey.log") {|s| @opts[:logfile] = s || logger_filename }
         opts.on("-t", "--threads [NUM]", Integer, "Amount of threads to be used for checking (default: 10)") {|s| @opts[:threads] = s }
         opts.on("-s", "--silent", "Only print errors and infos") { @opts[:silent] = true }
         opts.on("-q", "--quiet", "Only print errors") { @opts[:quiet] = true }
@@ -115,6 +117,7 @@ module WatchmonkeyCli
 
     def spawn_threads_and_run!
       if @opts[:threads] > 1
+        debug "Spawning #{@opts[:threads]} consumer threads..."
         @opts[:threads].times do
           @threads << Thread.new do
             Thread.current.abort_on_exception = true
@@ -122,6 +125,7 @@ module WatchmonkeyCli
           end
         end
       else
+        debug "Running threadless..."
         _queueoff
       end
     end
@@ -141,8 +145,16 @@ module WatchmonkeyCli
       "#{wm_cfg_path}/config.rb"
     end
 
-    # def async &block
-    #   @opts[:threads] > 1 ? (@threads << Thread.new(&block)) : block.call
-    # end
+    def logger_filename ensure_directory = false
+      "#{wm_cfg_path}/logs/watchmonkey.log".tap do |fn|
+        FileUtils.mkdir_p(File.dirname(fn)) if ensure_directory
+      end
+    end
+
+    def logger
+      sync do
+        @logger ||= Logger.new(logger_filename(true), 10, 1024000)
+      end
+    end
   end
 end
