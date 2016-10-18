@@ -116,9 +116,7 @@ module WatchmonkeyCli
       app.fire(:on_info, msg, robj)
       return if app.opts[:quiet]
       _tolog(msg, :info)
-      app.sync do
-        puts app.c(msg, :blue)
-      end
+      app.puts app.c(msg, :blue)
     end
 
     def debug msg, robj = nil
@@ -126,9 +124,7 @@ module WatchmonkeyCli
       app.fire(:on_message, msg, robj)
       return if app.opts[:quiet] || app.opts[:silent]
       _tolog(msg, :debug)
-      app.sync do
-        puts app.c(msg, :black)
-      end
+      app.puts app.c(msg, :black)
     end
 
     def error msg, robj = nil
@@ -144,8 +140,7 @@ module WatchmonkeyCli
     end
 
     def spawn_sub which, *args
-      return false if app.running?
-      if sec = app.checkers["ssl_expiration"]
+      if sec = app.checkers[which.to_s]
         sec.enqueue(*args)
       end
     end

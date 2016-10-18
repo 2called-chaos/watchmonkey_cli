@@ -46,6 +46,7 @@ module WatchmonkeyCli
         loop_wait_empty: 1,      # (internal) time to wait in thread if queue is empty
         silent: false,           # -s flag
         quiet: false,            # -q flag
+        stdout: STDOUT,          # (internal) STDOUT redirect
       }
       init_params
       yield(self)
@@ -87,6 +88,18 @@ module WatchmonkeyCli
     def load_config
       return unless File.exist?(wm_cfg_configfile)
       eval File.read(wm_cfg_configfile, encoding: "utf-8"), binding, wm_cfg_configfile
+    end
+
+    def puts *a
+      sync { @opts[:stdout].send(:puts, *a) }
+    end
+
+    def print *a
+      sync { @opts[:stdout].send(:print, *a) }
+    end
+
+    def warn *a
+      sync { @opts[:stdout].send(:warn, *a) }
     end
 
     def debug msg
@@ -232,7 +245,7 @@ module WatchmonkeyCli
       debug "Trapping INT signal..."
       Signal.trap("INT") do
         $wm_runtime_exiting = true
-        puts "Interrupting..."
+        Kernel.puts "Interrupting..."
       end
     end
 

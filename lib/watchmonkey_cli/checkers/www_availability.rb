@@ -7,7 +7,7 @@ module WatchmonkeyCli
         app.enqueue(self, page, opts.except(:ssl_expiration))
 
         # if available enable ssl_expiration support
-        if page.start_with?("https://") && opts[:ssl_expiration] != false
+        if page.start_with?("https://") && opts[:ssl_expiration] != false && !app.running?
           spawn_sub("ssl_expiration", page, opts[:ssl_expiration].is_a?(Hash) ? opts[:ssl_expiration] : {})
         end
       end
