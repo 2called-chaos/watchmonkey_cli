@@ -45,7 +45,7 @@ module WatchmonkeyCli
 
       def method_missing meth, *args, &block
         if c = @app.checkers[meth.to_s]
-          c.enqueue(self, *args)
+          c.enqueue(*args)
         else
           super
         end

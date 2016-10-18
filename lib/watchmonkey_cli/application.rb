@@ -97,6 +97,7 @@ module WatchmonkeyCli
     end
 
     def fire which, *args
+      return if @disable_event_firing
       @hooks[which] && @hooks[which].each{|h| h.call(*args) }
     end
 
@@ -140,16 +141,38 @@ module WatchmonkeyCli
       end
     end
 
-    def enqueue checker, &block
-      fire(:enqueue, checker, block)
-      @queue << [checker, block]
+    def enqueue checker, *a, &block
+      sync do
+        cb = block || checker.method(:check!)
+        fire(:enqueue, checker, a, cb)
+        @queue << [checker, a, ->(*a) {
+          result = Checker::Result.new(checker, *a)
+          checker.debug(result.str_running)
+          checker.safe(result.str_safe) { cb.call(result, *a) }
+          result.dump!
+        }]
+      end
+    end
+
+    def enqueue_sub checker, which, *args
+      sync do
+        if sec = @checkers[which.to_s]
+          begin
+            ef_was = @disable_event_firing
+            @disable_event_firing = true
+            sec.enqueue(*args)
+          ensure
+            @disable_event_firing = ef_was
+          end
+        end
+      end
     end
 
     def _queueoff
       while !@queue.empty? || @opts[:loop_forever]
         item = queue.pop(true) rescue false
         if item
-          item[1].call()
+          item[2].call(*item[1])
           fire(:dequeue, *item)
         end
         sleep @opts[:loop_wait_empty] if @opts[:loop_forever] && @opts[:loop_wait_empty] && @queue.empty?

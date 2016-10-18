@@ -3,16 +3,11 @@ module WatchmonkeyCli
     class MysqlReplication < Checker
       self.checker_name = "mysql_replication"
 
-      def enqueue config, host, opts = {}
-        app.enqueue(self) do
-          opts = { host: "127.0.0.1", user: "root" }.merge(opts)
-          host = app.fetch_connection(:loopback, :local) if !host || host == :local
-          host = app.fetch_connection(:ssh, host) if host.is_a?(Symbol)
-          result = Checker::Result.new(self, host, opts)
-          debug(result.str_running)
-          safe(result.str_safe) { check!(result, host, opts) }
-          result.dump!
-        end
+      def enqueue host, opts = {}
+        opts = { host: "127.0.0.1", user: "root" }.merge(opts)
+        host = app.fetch_connection(:loopback, :local) if !host || host == :local
+        host = app.fetch_connection(:ssh, host) if host.is_a?(Symbol)
+        app.enqueue(self, host, opts)
       end
 
       def check! result, host, opts = {}

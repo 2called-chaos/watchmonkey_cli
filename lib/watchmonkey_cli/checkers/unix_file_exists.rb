@@ -3,16 +3,11 @@ module WatchmonkeyCli
     class FileExists < Checker
       self.checker_name = "unix_file_exists"
 
-      def enqueue config, host, file, opts = {}
-        app.enqueue(self) do
-          opts = { message: "File #{file} does not exist!" }.merge(opts)
-          host = app.fetch_connection(:loopback, :local) if !host || host == :local
-          host = app.fetch_connection(:ssh, host) if host.is_a?(Symbol)
-          result = Checker::Result.new(self, host, file, opts)
-          debug(result.str_running)
-          safe(result.str_safe) { check!(result, host, file, opts) }
-          result.dump!
-        end
+      def enqueue host, file, opts = {}
+        opts = { message: "File #{file} does not exist!" }.merge(opts)
+        host = app.fetch_connection(:loopback, :local) if !host || host == :local
+        host = app.fetch_connection(:ssh, host) if host.is_a?(Symbol)
+        app.enqueue(self, host, file, opts)
       end
 
       def check! result, host, file, opts = {}

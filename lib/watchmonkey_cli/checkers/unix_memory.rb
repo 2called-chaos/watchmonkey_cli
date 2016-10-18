@@ -3,16 +3,11 @@ module WatchmonkeyCli
     class UnixMemory < Checker
       self.checker_name = "unix_memory"
 
-      def enqueue config, host, opts = {}
-        app.enqueue(self) do
-          opts = { min_percent: 25 }.merge(opts)
-          host = app.fetch_connection(:loopback, :local) if !host || host == :local
-          host = app.fetch_connection(:ssh, host) if host.is_a?(Symbol)
-          result = Checker::Result.new(self, host, opts)
-          debug(result.str_running)
-          safe(result.str_safe) { check!(result, host, opts) }
-          result.dump!
-        end
+      def enqueue host, opts = {}
+        opts = { min_percent: 25 }.merge(opts)
+        host = app.fetch_connection(:loopback, :local) if !host || host == :local
+        host = app.fetch_connection(:ssh, host) if host.is_a?(Symbol)
+        app.enqueue(self, host, opts)
       end
 
       def check! result, host, opts = {}

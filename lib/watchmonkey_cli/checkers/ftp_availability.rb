@@ -3,14 +3,9 @@ module WatchmonkeyCli
     class FtpAvailability < Checker
       self.checker_name = "ftp_availability"
 
-      def enqueue config, host, opts = {}
-        app.enqueue(self) do
-          opts = { threshold: 1.months }.merge(opts)
-          result = Checker::Result.new(self, host, opts)
-          debug(result.str_running)
-          safe(result.str_safe) { check!(result, host, opts) }
-          result.dump!
-        end
+      def enqueue host, opts = {}
+        opts = { threshold: 1.months }.merge(opts)
+        app.enqueue(self, host, opts)
       end
 
       def check! result, host, opts = {}
