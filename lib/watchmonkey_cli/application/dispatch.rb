@@ -27,6 +27,7 @@ module WatchmonkeyCli
 
       def dispatch_index
         Thread.abort_on_exception = true
+        trap_signals
         init_checkers!
         load_configs!
         start_checkers!
@@ -37,6 +38,7 @@ module WatchmonkeyCli
       ensure
         stop_checkers!
         close_connections!
+        release_signals
       end
 
       # def dispatch_info

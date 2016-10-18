@@ -16,9 +16,10 @@ module WatchmonkeyCli
         app.parse_params
         begin
           app.dispatch
-          app.debug "#{Thread.list.length} threads remain..."
         rescue Interrupt
           app.abort("Interrupted", 1)
+        ensure
+          app.debug "#{Thread.list.length} threads remain..."
         end
       end
     end
@@ -98,6 +99,7 @@ module WatchmonkeyCli
 
     def fire which, *args
       return if @disable_event_firing
+      sync { debug "[Event] Firing #{which} (#{@hooks[which].try(:length) || 0} handlers) #{args[0].class} #{args[1]}" }
       @hooks[which] && @hooks[which].each{|h| h.call(*args) }
     end
 
@@ -144,12 +146,17 @@ module WatchmonkeyCli
     def enqueue checker, *a, &block
       sync do
         cb = block || checker.method(:check!)
-        fire(:enqueue, checker, a, cb)
+        evreg = @disable_event_registration
+        fire(:enqueue, checker, a, cb) unless evreg
         @queue << [checker, a, ->(*a) {
-          result = Checker::Result.new(checker, *a)
-          checker.debug(result.str_running)
-          checker.safe(result.str_safe) { cb.call(result, *a) }
-          result.dump!
+          begin
+            result = Checker::Result.new(checker, *a)
+            checker.debug(result.str_running)
+            checker.safe(result.str_safe) { cb.call(result, *a) }
+            result.dump!
+          ensure
+            fire(:dequeue, checker, a) unless evreg
+          end
         }]
       end
     end
@@ -158,11 +165,14 @@ module WatchmonkeyCli
       sync do
         if sec = @checkers[which.to_s]
           begin
-            ef_was = @disable_event_firing
-            @disable_event_firing = true
+            # ef_was = @disable_event_firing
+            er_was = @disable_event_registration
+            # @disable_event_firing = true
+            @disable_event_registration = true
             sec.enqueue(*args)
           ensure
-            @disable_event_firing = ef_was
+            # @disable_event_firing = ef_was
+            @disable_event_registration = er_was
           end
         end
       end
@@ -170,10 +180,11 @@ module WatchmonkeyCli
 
     def _queueoff
       while !@queue.empty? || @opts[:loop_forever]
+        break if $wm_runtime_exiting
         item = queue.pop(true) rescue false
         if item
           item[2].call(*item[1])
-          fire(:dequeue, *item)
+          # fire(:dequeue, *item)
         end
         sleep @opts[:loop_wait_empty] if @opts[:loop_forever] && @opts[:loop_wait_empty] && @queue.empty?
       end
@@ -197,6 +208,23 @@ module WatchmonkeyCli
       sync do
         @logger ||= Logger.new(logger_filename(true), 10, 1024000)
       end
+    end
+
+    def trap_signals
+      debug "Trapping INT signal..."
+      Signal.trap("INT") do
+        $wm_runtime_exiting = true
+        puts "Interrupting..."
+      end
+    end
+
+    def release_signals
+      debug "Releasing INT signal..."
+      Signal.trap("INT", "DEFAULT")
+    end
+
+    def haltpoint
+      raise Interrupt if $wm_runtime_exiting
     end
   end
 end
