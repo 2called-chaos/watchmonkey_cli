@@ -26,7 +26,7 @@ module WatchmonkeyCli
         # =================
         # = Status thread =
         # =================
-        @platypus_status_thread = Thread.new do
+        @requeue_status_thread = Thread.new do
           Thread.current.abort_on_exception = true
           while STDIN.gets
             sync do
