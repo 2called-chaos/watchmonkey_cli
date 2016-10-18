@@ -72,7 +72,8 @@ ftp_availability "ftp.example.com", user: "somebody", password: "thatiusedtoknow
 # -----
 # Check the health of a MySQL replication.
 # Host might be :local/false/nil which will test locally (without SSH)
-# Available options: user(root), password, host(127.0.0.1), port(3306)
+# Available options: user(root), password, host(127.0.0.1), port(3306), sbm_threshold(60)
+# SBM refers to "Seconds Behind Master"
 mysql_replication :my_server, user: "replication_user", password: "pushit"
 
 

@@ -4,7 +4,7 @@ module WatchmonkeyCli
       self.checker_name = "mysql_replication"
 
       def enqueue host, opts = {}
-        opts = { host: "127.0.0.1", user: "root" }.merge(opts)
+        opts = { host: "127.0.0.1", user: "root", sbm_threshold: 60 }.merge(opts)
         host = app.fetch_connection(:loopback, :local) if !host || host == :local
         host = app.fetch_connection(:ssh, host) if host.is_a?(Symbol)
         app.enqueue(self, host, opts)
@@ -30,7 +30,7 @@ module WatchmonkeyCli
           result.error! "MySQL replication is offline (IO=#{io},SQL=#{sql})#{pres}"
         elsif !io || !sql
           result.error! "MySQL replication is BROKEN (IO=#{io},SQL=#{sql})#{pres}"
-        elsif sbm > 60
+        elsif sbm > opts[:sbm_threshold]
           result.error! "MySQL replication is #{sbm} SECONDS BEHIND master (IO=#{io},SQL=#{sql})#{pres}"
         end
       end
