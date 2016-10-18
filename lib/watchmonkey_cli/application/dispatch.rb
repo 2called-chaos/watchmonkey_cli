@@ -44,48 +44,43 @@ module WatchmonkeyCli
         release_signals
       end
 
-      # def dispatch_info
-      #   logger.log_without_timestr do
-      #     log ""
-      #     log "     Your version: #{your_version = Gem::Version.new(Dle::VERSION)}"
+      def dispatch_info
+        your_version = Gem::Version.new(WatchmonkeyCli::VERSION)
+        puts c ""
+        puts c("     Your version: ", :yellow) << c("#{your_version}", :magenta)
 
-      #     # get current version
-      #     logger.log_with_print do
-      #       log "  Current version: "
-      #       if @opts[:check_for_updates]
-      #         require "net/http"
-      #         log c("checking...", :blue)
+        print c("  Current version: ", :yellow)
+        if @opts[:check_for_updates]
+          require "net/http"
+          print c("checking...", :blue)
 
-      #         begin
-      #           current_version = Gem::Version.new Net::HTTP.get_response(URI.parse(Dle::UPDATE_URL)).body.strip
+          begin
+            current_version = Gem::Version.new Net::HTTP.get_response(URI.parse(WatchmonkeyCli::UPDATE_URL)).body.strip
 
-      #           if current_version > your_version
-      #             status = c("#{current_version} (consider update)", :red)
-      #           elsif current_version < your_version
-      #             status = c("#{current_version} (ahead, beta)", :green)
-      #           else
-      #             status = c("#{current_version} (up2date)", :green)
-      #           end
-      #         rescue
-      #           status = c("failed (#{$!.message})", :red)
-      #         end
+            if current_version > your_version
+              status = c("#{current_version} (consider update)", :red)
+            elsif current_version < your_version
+              status = c("#{current_version} (ahead, beta)", :green)
+            else
+              status = c("#{current_version} (up2date)", :green)
+            end
+          rescue
+            status = c("failed (#{$!.message})", :red)
+          end
 
-      #         logger.raw "#{"\b" * 11}#{" " * 11}#{"\b" * 11}", :print # reset cursor
-      #         log status
-      #       else
-      #         log c("check disabled", :red)
-      #       end
-      #     end
-      #     log "  Selected editor: #{c @editor || "none", :magenta}"
+          print "#{"\b" * 11}#{" " * 11}#{"\b" * 11}" # reset line
+          puts status
+        else
+          puts c("check disabled", :red)
+        end
 
-      #     # more info
-      #     log ""
-      #     log "  DLE DirectoryListEdit is brought to you by #{c "bmonkeys.net", :green}"
-      #     log "  Contribute @ #{c "github.com/2called-chaos/dle", :cyan}"
-      #     log "  Eat bananas every day!"
-      #     log ""
-      #   end
-      # end
+        # more info
+        puts c ""
+        puts c "  Watchmonkey CLI is brought to you by #{c "bmonkeys.net", :green}"
+        puts c "  Contribute @ #{c "github.com/2called-chaos/watchmonkey_cli", :cyan}"
+        puts c "  Eat bananas every day!"
+        puts c ""
+      end
     end
   end
 end
