@@ -33,9 +33,9 @@ module WatchmonkeyCli
         # body
         if rx = opts[:body]
           if rx.is_a?(String)
-            result.error! "body does not include #{rx}!" if !result.result.body.include?(rx)
+            result.error! "body does not include `#{rx}'!" if !result.result.body.include?(rx)
           elsif rx.is_a?(Regexp)
-            result.error! "body does not match #{rx}!" if !result.result.body.match(rx)
+            result.error! "body does not match `#{rx}'!" if !result.result.body.match(rx)
           end
         end
 
