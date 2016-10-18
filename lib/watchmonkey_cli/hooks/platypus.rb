@@ -2,45 +2,6 @@ module WatchmonkeyCli
   class Platypus
     def self.hook!(app)
       app.instance_eval do
-        # config and variable setup
-        @opts[:loop_forever] = true
-        @opts[:logfile] = logger_filename # enable logging
-        @opts[:default_requeue]                   = 60
-        # @opts[:default_requeue_ftp_availability]  = 60
-        @opts[:default_requeue_mysql_replication] = 30
-        @opts[:default_requeue_ssl_expiration]    = 1.hour
-        @opts[:default_requeue_unix_defaults]     = false
-        # @opts[:default_requeue_unix_df]           = 60
-        # @opts[:default_requeue_unix_file_exists]  = 60
-        # @opts[:default_requeue_unix_load]         = 60
-        @opts[:default_requeue_unix_mdadm]        = 5.minutes
-        # @opts[:default_requeue_unix_memory]       = 60
-        @opts[:default_requeue_www_availability]  = 30
-        @requeue = []
-
-
-        # =================
-        # = Status thread =
-        # =================
-        @platypus_status_thread = Thread.new do
-          Thread.current.abort_on_exception = true
-          while STDIN.gets
-            sync do
-              puts "==========  STATUS  =========="
-              puts "     Queue: #{@queue.length}"
-              puts "   Requeue: #{@requeue.length}"
-              puts "   Workers: #{@threads.select{|t| t.status == "sleep" }.length}/#{@threads.length} sleeping (#{@threads.select(&:alive?).length} alive)"
-              puts "   Threads: #{Thread.list.length}"
-              # puts "            #{@threads.select(&:alive?).length} alive"
-              # puts "            #{@threads.select{|t| t.status == "run" }.length} running"
-              # puts "            #{@threads.select{|t| t.status == "sleep" }.length} sleeping"
-              puts " Processed: #{@processed}"
-              puts "========== //STATUS =========="
-            end
-          end
-        end
-
-
         # =========
         # = Hooks =
         # =========
@@ -51,44 +12,6 @@ module WatchmonkeyCli
               fmsg = msg.gsub('"', '\"').gsub("'", %{'"'"'})
               `osascript -e 'display notification "#{fmsg}" with title "WatchMonkey"'`
             end
-          end
-        end
-
-        hook :dequeue do |checker, args|
-          opts = args.extract_options!
-          retry_in = opts[:every] if opts[:every].is_a?(Fixnum)
-          retry_in = @opts[:"default_requeue_#{checker.class.checker_name}"] if retry_in.nil?
-          retry_in = @opts[:default_requeue] if retry_in.nil?
-          if retry_in
-            debug "Requeuing #{checker} in #{retry_in} seconds"
-            requeue checker, args + [opts], retry_in
-          end
-        end
-
-        hook :wm_shutdown do
-          sync do
-            debug "[ReQ] #{@requeue.length} items in requeue..."
-            unless @requeue.empty?
-              @requeue.each(&:kill).each(&:join).select!(&:alive?)
-              debug "[ReQ] #{@requeue.length} items in requeue..."
-            end
-            @platypus_status_thread.try(:kill).try(:join)
-          end
-        end
-
-
-        # ===========
-        # = Methods =
-        # ===========
-        def requeue checker, args, delay = 10
-          return if $wm_runtime_exiting
-          sync do
-            @requeue << Thread.new {
-              Thread.current.abort_on_exception = true
-              sleep(delay)
-              checker.enqueue(*args)
-              sync { @requeue.delete Thread.current }
-            }
           end
         end
       end
