@@ -9,12 +9,15 @@ module WatchmonkeyCli
             robj.messages.each do |m|
               msg  = "#{robj.args[0].try(:name) || robj.args[0].presence || "?"}: #{m}"
 
-              # makes no sound
-              fmsg = msg.gsub('"', '\"').gsub("'", %{'"'"'})
-              `osascript -e 'display notification "#{fmsg}" with title "WatchMonkey"'`
-
-              # makes a sound
-              # sync { puts "NOTIFICATION:#{msg}" }
+              case opts[:notifications]
+              when 1
+                # makes no sound
+                fmsg = msg.gsub('"', '\"').gsub("'", %{'"'"'})
+                `osascript -e 'display notification "#{fmsg}" with title "WatchMonkey"'`
+              when 2
+                # makes a sound
+                sync { puts "NOTIFICATION:#{msg}" }
+              end
             end
           end
         end if opts[:notifications]
