@@ -27,6 +27,7 @@ module WatchmonkeyCli
     end
 
     def initialize env, argv
+      @boot = Time.current
       @env, @argv = env, argv
       @connections = {}
       @hooks = {}
