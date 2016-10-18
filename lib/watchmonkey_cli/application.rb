@@ -86,7 +86,7 @@ module WatchmonkeyCli
 
     def load_config
       return unless File.exist?(wm_cfg_configfile)
-      eval File.read(wm_cfg_configfile), binding, wm_cfg_configfile
+      eval File.read(wm_cfg_configfile, encoding: "utf-8"), binding, wm_cfg_configfile
     end
 
     def debug msg

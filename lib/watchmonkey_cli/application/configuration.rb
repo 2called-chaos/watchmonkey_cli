@@ -22,8 +22,8 @@ module WatchmonkeyCli
 
         def generate_config name = "default"
           FileUtils.mkdir_p(config_directory)
-          File.open(config_filename(name), "w") do |f|
-            f << File.read("#{File.dirname(__FILE__)}/configuration.tpl")
+          File.open(config_filename(name), "w", encoding: "utf-8") do |f|
+            f << File.read("#{File.dirname(__FILE__)}/configuration.tpl", encoding: "utf-8")
           end
         end
       end
@@ -32,7 +32,7 @@ module WatchmonkeyCli
         @app = app
         @file = file
         begin
-          eval File.read(file), binding, file
+          eval File.read(file, encoding: "utf-8"), binding, file
         rescue
           app.error "Invalid config file #{file}"
           raise
