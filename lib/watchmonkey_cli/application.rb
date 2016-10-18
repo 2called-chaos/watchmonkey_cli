@@ -102,9 +102,11 @@ module WatchmonkeyCli
       warn c(msg, :red)
     end
 
-    def hook which, &hook_block
-      @hooks[which.to_sym] ||= []
-      @hooks[which.to_sym] << hook_block
+    def hook *which, &hook_block
+      which.each do |w|
+        @hooks[w.to_sym] ||= []
+        @hooks[w.to_sym] << hook_block
+      end
     end
 
     def fire which, *args
@@ -194,9 +196,12 @@ module WatchmonkeyCli
         break if $wm_runtime_exiting
         item = queue.pop(true) rescue false
         if item
+          Thread.current[:working] = true
+          fire(:wm_work_start, Thread.current)
           sync { @processed += 1 }
           item[2].call(*item[1])
-          # fire(:dequeue, *item)
+          Thread.current[:working] = false
+          fire(:wm_work_end, Thread.current)
         end
         sleep @opts[:loop_wait_empty] if @opts[:loop_forever] && @opts[:loop_wait_empty] && @queue.empty?
       end

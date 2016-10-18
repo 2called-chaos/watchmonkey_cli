@@ -33,7 +33,7 @@ module WatchmonkeyCli
               puts "==========  STATUS  =========="
               puts "     Queue: #{@queue.length}"
               puts "   Requeue: #{@requeue.length}"
-              puts "   Workers: #{@threads.select{|t| t.status == "sleep" }.length}/#{@threads.length} sleeping (#{@threads.select(&:alive?).length} alive)"
+              puts "   Workers: #{@threads.select{|t| t[:working] }.length}/#{@threads.length} working (#{@threads.select(&:alive?).length} alive)"
               puts "   Threads: #{Thread.list.length}"
               # puts "            #{@threads.select(&:alive?).length} alive"
               # puts "            #{@threads.select{|t| t.status == "run" }.length} running"
@@ -66,7 +66,7 @@ module WatchmonkeyCli
               @requeue.each(&:kill).each(&:join).select!(&:alive?)
               debug "[ReQ] #{@requeue.length} items in requeue..."
             end
-            @platypus_status_thread.try(:kill).try(:join)
+            @requeue_status_thread.try(:kill).try(:join)
           end
         end
 
