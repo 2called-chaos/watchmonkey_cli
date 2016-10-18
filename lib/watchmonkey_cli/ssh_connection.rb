@@ -24,6 +24,10 @@ module WatchmonkeyCli
       "#<WatchmonkeyCli::SshConnection:#{@id}>"
     end
 
+    def name
+      "ssh:#{@id}"
+    end
+
     def sync &block
       @mutex.synchronize(&block)
     end

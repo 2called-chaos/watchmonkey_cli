@@ -97,6 +97,9 @@ module WatchmonkeyCli
             @type = meth
           end
         end
+        define_method :"#{meth}?" do
+          sync { @type == meth }
+        end
       end
     end
 
@@ -138,6 +141,13 @@ module WatchmonkeyCli
     def _tolog msg, meth = :log
       return unless app.opts[:logfile]
       app.logger.public_send(meth, msg)
+    end
+
+    def spawn_sub which, *args
+      return false if app.running?
+      if sec = app.checkers["ssl_expiration"]
+        sec.enqueue(*args)
+      end
     end
 
     # def to_s

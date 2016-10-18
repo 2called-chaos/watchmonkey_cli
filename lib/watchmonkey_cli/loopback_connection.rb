@@ -11,6 +11,10 @@ module WatchmonkeyCli
       "#<WatchmonkeyCli::LoopbackConnection:#{@id}>"
     end
 
+    def name
+      "lo:#{@id}"
+    end
+
     def sync &block
       # @mutex.synchronize(&block)
       block.try(:call)

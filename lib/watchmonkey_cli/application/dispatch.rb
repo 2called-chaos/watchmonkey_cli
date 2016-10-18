@@ -30,12 +30,15 @@ module WatchmonkeyCli
         trap_signals
         init_checkers!
         load_configs!
+        dump_and_exit! if @opts[:dump]
         start_checkers!
+        @running = true
         spawn_threads_and_run!
         @threads.each(&:join)
         # puts config_directory
         # puts config_files.inspect
       ensure
+        @running = false
         stop_checkers!
         close_connections!
         release_signals

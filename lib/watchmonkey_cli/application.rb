@@ -1,6 +1,6 @@
 module WatchmonkeyCli
   class Application
-    attr_reader :opts, :checkers, :connections, :threads, :queue, :hooks
+    attr_reader :opts, :checkers, :connections, :threads, :queue, :hooks, :processed
     include Helpers
     include Colorize
     include Dispatch
@@ -16,9 +16,11 @@ module WatchmonkeyCli
         app.parse_params
         begin
           app.dispatch
+          app.haltpoint
         rescue Interrupt
           app.abort("Interrupted", 1)
         ensure
+          app.fire(:wm_shutdown)
           app.debug "#{Thread.list.length} threads remain..."
         end
       end
@@ -31,7 +33,10 @@ module WatchmonkeyCli
       @monitor = Monitor.new
       @threads = []
       @queue = Queue.new
+      @processed = 0
+      @running = false
       @opts = {
+        dump: false,             # (internal) if true app will dump itself and exit before running any checks
         dispatch: :index,        # (internal) action to dispatch
         check_for_updates: true, # -z flag
         colorize: true,          # -m flag
@@ -63,6 +68,7 @@ module WatchmonkeyCli
         opts.on("-h", "--help", "Shows this help") { @opts[:dispatch] = :help }
         opts.on("-v", "--version", "Shows version and other info") { @opts[:dispatch] = :info }
         opts.on("-z", "Do not check for updates on GitHub (with -v/--version)") { @opts[:check_for_updates] = false }
+        opts.on("--dump-core", "for developers") { @opts[:dump] = true }
       end
     end
 
@@ -72,6 +78,10 @@ module WatchmonkeyCli
       abort(e.message)
       dispatch(:help)
       exit 1
+    end
+
+    def running?
+      @running
     end
 
     def load_config
@@ -99,7 +109,7 @@ module WatchmonkeyCli
 
     def fire which, *args
       return if @disable_event_firing
-      sync { debug "[Event] Firing #{which} (#{@hooks[which].try(:length) || 0} handlers) #{args[0].class} #{args[1]}" }
+      sync { debug "[Event] Firing #{which} (#{@hooks[which].try(:length) || 0} handlers) #{args.map(&:class)}" }
       @hooks[which] && @hooks[which].each{|h| h.call(*args) }
     end
 
@@ -153,6 +163,7 @@ module WatchmonkeyCli
             result = Checker::Result.new(checker, *a)
             checker.debug(result.str_running)
             checker.safe(result.str_safe) { cb.call(result, *a) }
+            fire(:result_dump, result, a, checker)
             result.dump!
           ensure
             fire(:dequeue, checker, a) unless evreg
@@ -183,6 +194,7 @@ module WatchmonkeyCli
         break if $wm_runtime_exiting
         item = queue.pop(true) rescue false
         if item
+          sync { @processed += 1 }
           item[2].call(*item[1])
           # fire(:dequeue, *item)
         end
@@ -198,15 +210,16 @@ module WatchmonkeyCli
       "#{wm_cfg_path}/config.rb"
     end
 
-    def logger_filename ensure_directory = false
-      "#{wm_cfg_path}/logs/watchmonkey.log".tap do |fn|
-        FileUtils.mkdir_p(File.dirname(fn)) if ensure_directory
-      end
+    def logger_filename
+      "#{wm_cfg_path}/logs/watchmonkey.log"
     end
 
     def logger
       sync do
-        @logger ||= Logger.new(logger_filename(true), 10, 1024000)
+        @logger ||= begin
+          FileUtils.mkdir_p(File.dirname(@opts[:logfile]))
+          Logger.new(@opts[:logfile], 10, 1024000)
+        end
       end
     end
 
@@ -225,6 +238,13 @@ module WatchmonkeyCli
 
     def haltpoint
       raise Interrupt if $wm_runtime_exiting
+    end
+
+    def dump_and_exit!
+      puts "   Queue: #{@queue.length}"
+      puts " AppOpts: #{@opts}"
+      puts "Checkers: #{@checkers.keys.join(",")}"
+      exit 9
     end
   end
 end

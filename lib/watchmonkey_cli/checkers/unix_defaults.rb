@@ -4,7 +4,11 @@ module WatchmonkeyCli
       self.checker_name = "unix_defaults"
 
       def enqueue host, opts = {}
+        return if app.running? # we only ever want to run this once to spawn sub checkers
         opts = { unix_load: {}, unix_memory: {}, unix_df: {}, unix_mdadm: {} }.merge(opts)
+
+        host = app.fetch_connection(:loopback, :local) if !host || host == :local
+        host = app.fetch_connection(:ssh, host) if host.is_a?(Symbol)
 
         # option shortcuts
         opts[:unix_load][:limits] = opts[:load] if opts[:load]
@@ -24,7 +28,11 @@ module WatchmonkeyCli
 
       def check! result, host, opts = {}
         [:unix_load, :unix_memory, :unix_df, :unix_mdadm].each do |which|
-          app.enqueue_sub(self, which, host, opts[which]) if opts[which]
+          # if opts[which] && sec = app.checkers[which.to_s]
+          #   sec.check!(result, host, opts[which])
+          # end
+          # app.enqueue_sub(self, which, host, opts[which]) if opts[which]
+          spawn_sub(which, host, opts[which].is_a?(Hash) ? opts[which] : {})
         end
       end
     end

@@ -4,10 +4,12 @@ module WatchmonkeyCli
       self.checker_name = "www_availability"
 
       def enqueue page, opts = {}
-        app.enqueue(self, page, opts)
+        app.enqueue(self, page, opts.except(:ssl_expiration))
 
         # if available enable ssl_expiration support
-        app.enqueue_sub(self, "ssl_expiration", page, opts[:ssl_expiration].is_a?(Hash) ? opts[:ssl_expiration] : {}) if page.start_with?("https://") && opts[:ssl_expiration] != false
+        if page.start_with?("https://") && opts[:ssl_expiration] != false
+          spawn_sub("ssl_expiration", page, opts[:ssl_expiration].is_a?(Hash) ? opts[:ssl_expiration] : {})
+        end
       end
 
       def check! result, page, opts = {}
