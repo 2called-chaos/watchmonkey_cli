@@ -1,5 +1,5 @@
 module WatchmonkeyCli
-  module Helpers
+  module Helper
     BYTE_UNITS = %W(TiB GiB MiB KiB B).freeze
 
     def human_filesize(s)

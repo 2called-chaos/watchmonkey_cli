@@ -2,8 +2,20 @@ module WatchmonkeyCli
   class Application
     class Configuration
       module AppHelper
+        def wm_cfg_path
+          ENV["WM_CFGDIR"].presence || File.expand_path("~/.watchmonkey")
+        end
+
         def config_directory
           "#{wm_cfg_path}/configs"
+        end
+
+        def wm_cfg_configfile
+          "#{wm_cfg_path}/config.rb"
+        end
+
+        def config_filename name = "default"
+          "#{config_directory}/#{name}.rb"
         end
 
         def config_files
@@ -12,12 +24,13 @@ module WatchmonkeyCli
           end
         end
 
-        def config_filename name = "default"
-          "#{config_directory}/#{name}.rb"
-        end
-
         def load_configs!
           config_files.each {|f| Configuration.new(self, f) }
+        end
+
+        def load_appconfig
+          return unless File.exist?(wm_cfg_configfile)
+          eval File.read(wm_cfg_configfile, encoding: "utf-8"), binding, wm_cfg_configfile
         end
 
         def generate_config name = "default"
