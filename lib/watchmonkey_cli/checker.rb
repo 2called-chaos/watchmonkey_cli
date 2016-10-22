@@ -216,7 +216,15 @@ module WatchmonkeyCli
       # and therefore shared resources might still be in use
     end
 
+    def enqueue *args
+      # Called by configuration defining a check with all the arguments.
+      #   e.g. www_availability :my_host, foo: "bar" => args = [:my_host, {foo: "bar"}]
+      # Should invoke `app.enqueue` which will by default call `#check!` method with given arguments.
+      raise NotImplementedError, "a checker (#{self.class.name}) must implement `#enqueue' method!"
+    end
+
     def check! *a
+      # required, see #enqueue
       raise NotImplementedError, "a checker (#{self.class.name}) must implement `#check!' method!"
     end
   end
