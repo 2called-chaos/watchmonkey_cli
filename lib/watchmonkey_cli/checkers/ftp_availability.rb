@@ -13,9 +13,9 @@ module WatchmonkeyCli
           ftp.login(opts[:user], opts[:password])
         end
       rescue Net::FTPPermError
-        result.error "Invalid credentials!"
+        result.error! "Invalid credentials!"
       rescue SocketError => e
-        result.error "#{e.class}: #{e.message}"
+        result.error! "#{e.class}: #{e.message}"
       end
     end
   end
