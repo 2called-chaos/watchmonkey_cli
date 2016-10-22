@@ -34,6 +34,7 @@ module WatchmonkeyCli
       end
 
       def stop_checkers!
+        return unless @checkers
         @checkers.each do |key, instance|
           debug "[SETUP] Stopping checker `#{key}' (#{instance.class.name})"
           instance.stop

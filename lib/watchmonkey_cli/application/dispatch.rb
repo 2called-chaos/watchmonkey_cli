@@ -28,6 +28,7 @@ module WatchmonkeyCli
       def dispatch_index
         Thread.abort_on_exception = true
         trap_signals
+        load_checkers!
         init_checkers!
         load_configs!
         dump_and_exit! if @opts[:dump]

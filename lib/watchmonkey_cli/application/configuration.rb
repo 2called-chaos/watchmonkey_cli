@@ -10,6 +10,10 @@ module WatchmonkeyCli
           "#{wm_cfg_path}/configs"
         end
 
+        def checker_directory
+          "#{wm_cfg_path}/checkers"
+        end
+
         def wm_cfg_configfile
           "#{wm_cfg_path}/config.rb"
         end
@@ -24,8 +28,22 @@ module WatchmonkeyCli
           end
         end
 
+        def checker_files
+          Dir["#{checker_directory}/**/*.rb"].reject do |file|
+            file.gsub(config_directory, "").split("/").any?{|fp| fp.start_with?("__") }
+          end
+        end
+
         def load_configs!
-          config_files.each {|f| Configuration.new(self, f) }
+          configs = config_files
+          debug "Loading #{configs.length} config files from `#{config_directory}'"
+          configs.each {|f| Configuration.new(self, f) }
+        end
+
+        def load_checkers!
+          checkers = checker_files
+          debug "Loading #{checkers.length} checker files from `#{checker_directory}'"
+          checkers.each {|f| require f }
         end
 
         def load_appconfig
