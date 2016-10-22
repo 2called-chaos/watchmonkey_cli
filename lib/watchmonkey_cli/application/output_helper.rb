@@ -13,8 +13,8 @@ module WatchmonkeyCli
         sync { @opts[:stdout].send(:warn, *a) }
       end
 
-      def debug msg
-        puts c("[DEBUG] #{msg}", :black) if @opts[:debug]
+      def debug msg, lvl = 1
+        puts c("[DEBUG] #{msg}", :black) if @opts[:debug] && @opts[:debug] >= lvl
       end
 
       def abort msg, exit_code = 1

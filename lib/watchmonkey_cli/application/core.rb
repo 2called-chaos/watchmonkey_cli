@@ -34,7 +34,7 @@ module WatchmonkeyCli
 
       def fire which, *args
         return if @disable_event_firing
-        sync { debug "[Event] Firing #{which} (#{@hooks[which].try(:length) || 0} handlers) #{args.map(&:class)}" }
+        sync { debug "[Event] Firing #{which} (#{@hooks[which].try(:length) || 0} handlers) #{args.map(&:class)}", 99 }
         @hooks[which] && @hooks[which].each{|h| h.call(*args) }
       end
 

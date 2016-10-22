@@ -67,7 +67,7 @@ module WatchmonkeyCli
         opts.on("-q", "--quiet", "Only print errors") { @opts[:quiet] = true }
 
         opts.separator("\n" << c("# General options", :blue))
-        opts.on("-d", "--debug", "Enable debug output") { @opts[:debug] = true }
+        opts.on("-d", "--debug [lvl=1]", Integer, "Enable debug output") {|l| @opts[:debug] = l || 1 }
         opts.on("-m", "--monochrome", "Don't colorize output") { @opts[:colorize] = false }
         opts.on("-h", "--help", "Shows this help") { @opts[:dispatch] = :help }
         opts.on("-v", "--version", "Shows version and other info") { @opts[:dispatch] = :info }
