@@ -56,7 +56,7 @@ To get a list of available options invoke Watchmonkey with the `--help` or `-h` 
 
 
 ## Documentation
-Writing a documentation takes time and I'm not sure if anyone is even interested in this tool. If there is interest I will write a documentation but for now this Readme must suffice. I also uploaded a [little tutorial video](???) which might help. If you need help just [open an issue](https://github.com/2called-chaos/watchmonkey_cli/issues/new) :)
+Writing a documentation takes time and I'm not sure if anyone is even interested in this tool. If there is interest I will write a documentation but for now this Readme must suffice. If you need help just [open an issue](https://github.com/2called-chaos/watchmonkey_cli/issues/new) :)
 
 
 ## Create configs
@@ -72,7 +72,7 @@ If you want to add custom checkers, hooks or change default settings you can cre
 
 
 ## Custom checkers
-If you want to monitor something that is not covered by the buildin handlers you can create your own, it's not that hard and should be a breeze if you are used to Ruby. All descendants of the `WatchmonkeyCli::Checker` class will be initialized and are usable in the application. Documentation is thin but you can take a look at the [example checker](https://github.com/2called-chaos/watchmonkey_cli/blob/master/lib/watchmonkey_cli/doc/checker_example.rb), the [buildin checkers](https://github.com/2called-chaos/watchmonkey_cli/tree/master/lib/watchmonkey_cli/checkers), my [little tutorial video](???) or just [open an issue](https://github.com/2called-chaos/watchmonkey_cli/issues/new) and I might just implement it real quick.
+If you want to monitor something that is not covered by the buildin handlers you can create your own, it's not that hard and should be a breeze if you are used to Ruby. All descendants of the `WatchmonkeyCli::Checker` class will be initialized and are usable in the application. Documentation is thin but you can take a look at the [example checker](https://github.com/2called-chaos/watchmonkey_cli/blob/master/lib/watchmonkey_cli/doc/checker_example.rb), the [buildin checkers](https://github.com/2called-chaos/watchmonkey_cli/tree/master/lib/watchmonkey_cli/checkers) or just [open an issue](https://github.com/2called-chaos/watchmonkey_cli/issues/new) and I might just implement it real quick.
 
 
 ## Additional Features
