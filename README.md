@@ -79,10 +79,10 @@ If you want to monitor something that is not covered by the buildin handlers you
 
 ### ReQueue
 By default Watchmonkey will run all tests once and then exit. This addon will enable Watchmonkey to run in a loop and run tests on a periodic interval.
-Since this seems like a core feature it might get included directly into Watchmonkey but for now take a look at the documentation in the [ReQueue source code](https://github.com/2called-chaos/watchmonkey_cli/blob/master/lib/watchmonkey_cli/hooks/requeue.rb) for integration instructions.
+Since this seems like a core feature it might get included directly into Watchmonkey but for now take a look at the [application configuration file](https://github.com/2called-chaos/watchmonkey_cli/blob/master/doc/config_example.rb) and [ReQueue source code](https://github.com/2called-chaos/watchmonkey_cli/blob/master/lib/watchmonkey_cli/hooks/requeue.rb) for integration examples.
 
 ### Platypus support
-[Platypus](http://sveinbjorn.org/platypus) is a MacOS software to create dead simple GUI wrappers for scripts. There is buildin support for the interface types ProgressBar and WebView. For information look at the documentation in the [Platypus hook source code](https://github.com/2called-chaos/watchmonkey_cli/blob/master/lib/watchmonkey_cli/hooks/platypus.rb).
+[Platypus](http://sveinbjorn.org/platypus) is a MacOS software to create dead simple GUI wrappers for scripts. There is buildin support for the interface types ProgressBar and WebView. For integration examples take a look at the [application configuration file](https://github.com/2called-chaos/watchmonkey_cli/blob/master/doc/config_example.rb) and [Platypus hook source code](https://github.com/2called-chaos/watchmonkey_cli/blob/master/lib/watchmonkey_cli/hooks/platypus.rb).
 
 
 ## Contributing
