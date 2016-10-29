@@ -10,11 +10,16 @@ module WatchmonkeyCli
           $wm_runtime_exiting = true
           Kernel.puts "Interrupting..."
         end
+        Signal.trap("TERM") do
+          $wm_runtime_exiting = true
+          Kernel.puts "Terminating..."
+        end
       end
 
       def release_signals
         debug "Releasing INT signal..."
         Signal.trap("INT", "DEFAULT")
+        Signal.trap("TERM", "DEFAULT")
       end
 
       def haltpoint
