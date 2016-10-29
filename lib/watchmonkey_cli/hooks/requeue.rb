@@ -2,9 +2,14 @@ module WatchmonkeyCli
   class Requeue
     def self.hook!(app)
       app.instance_eval do
+        @requeue = []
+
         # app options
         @opts[:loop_forever] = true
         @opts[:logfile] = logger_filename # enable logging
+
+        # scheduler options
+        @opts[:requeue_scheduler_hibernation] = 1 # tickrate of schedule in seconds
 
         # module options
         @opts[:default_requeue]                   = 60
@@ -18,9 +23,6 @@ module WatchmonkeyCli
         @opts[:default_requeue_unix_mdadm]        = 5.minutes
         # @opts[:default_requeue_unix_memory]       = 60
         @opts[:default_requeue_www_availability]  = 30
-
-        # Requeue threads
-        @requeue = []
 
 
         # =================
@@ -45,6 +47,25 @@ module WatchmonkeyCli
         end
 
 
+        # =================
+        # = Scheduler thread =
+        # =================
+        @requeue_scheduler_thread = Thread.new do
+          Thread.current.abort_on_exception = true
+          loop do
+            break if $wm_runtime_exiting
+            sync do
+              @requeue.each_with_index do |(run_at, callback), index|
+                next if run_at > Time.now
+                callback.call()
+                @requeue.delete_at(index)
+              end
+            end
+            sleep @opts[:requeue_scheduler_hibernation]
+          end
+        end
+
+
         # =========
         # = Hooks =
         # =========
@@ -61,11 +82,8 @@ module WatchmonkeyCli
 
         hook :wm_shutdown do
           sync do
-            debug "[ReQ] #{@requeue.length} items in requeue..."
-            unless @requeue.empty?
-              @requeue.each(&:kill).each(&:join).select!(&:alive?)
-              debug "[ReQ] #{@requeue.length} items in requeue..."
-            end
+            @requeue_scheduler_thread.try(:join)
+            debug "[ReQ] Clearing #{@requeue.length} items in requeue..."
             @requeue_status_thread.try(:kill).try(:join)
           end
         end
@@ -77,12 +95,9 @@ module WatchmonkeyCli
         def requeue checker, args, delay = 10
           return if $wm_runtime_exiting
           sync do
-            @requeue << Thread.new {
-              Thread.current.abort_on_exception = true
-              sleep(delay)
+            @requeue << [Time.now + delay, ->{
               checker.enqueue(*args)
-              sync { @requeue.delete Thread.current }
-            }
+            }]
           end
         end
       end
