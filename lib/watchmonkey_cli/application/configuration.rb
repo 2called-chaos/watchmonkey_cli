@@ -25,13 +25,13 @@ module WatchmonkeyCli
         def config_files
           Dir["#{config_directory}/**/*.rb"].reject do |file|
             file.gsub(config_directory, "").split("/").any?{|fp| fp.start_with?("__") }
-          end
+          end.sort
         end
 
         def checker_files
           Dir["#{checker_directory}/**/*.rb"].reject do |file|
             file.gsub(config_directory, "").split("/").any?{|fp| fp.start_with?("__") }
-          end
+          end.sort
         end
 
         def load_configs!
