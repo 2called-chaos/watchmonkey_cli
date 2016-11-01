@@ -68,6 +68,13 @@ ftp_availability "ftp.example.com", user: "somebody", password: "thatiusedtoknow
 
 
 # -----
+# TeamSpeak3 license expiration
+# -----
+# Checks ts3 license file for expiration. Default threshold is 1.month
+ts3_license :my_server, "/path/to/licensekey.dat", threshold: 1.month
+
+
+# -----
 # MySQL replication
 # -----
 # Check the health of a MySQL replication.

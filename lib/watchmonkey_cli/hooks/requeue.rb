@@ -16,6 +16,7 @@ module WatchmonkeyCli
         # @opts[:default_requeue_ftp_availability]  = 60
         @opts[:default_requeue_mysql_replication] = 30
         @opts[:default_requeue_ssl_expiration]    = 1.hour
+        @opts[:default_requeue_ts3_license]       = 1.hour
         @opts[:default_requeue_unix_defaults]     = false
         # @opts[:default_requeue_unix_df]           = 60
         # @opts[:default_requeue_unix_file_exists]  = 60

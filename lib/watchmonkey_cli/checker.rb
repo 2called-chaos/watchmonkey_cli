@@ -106,6 +106,7 @@ module WatchmonkeyCli
 
     # -------------------
 
+    include Helper
     attr_reader :app
 
     def initialize app
