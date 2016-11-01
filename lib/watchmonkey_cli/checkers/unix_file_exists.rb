@@ -11,9 +11,8 @@ module WatchmonkeyCli
       end
 
       def check! result, host, file, opts = {}
-        descriptor = "[#{self.class.checker_name} | #{host} | #{file} | #{opts}]\n\t"
         if host.is_a?(WatchmonkeyCli::LoopbackConnection)
-          result.error! "#{descriptor}#{opts[:message]} (ENOENT)" if !File.exist?(file)
+          result.error! "#{opts[:message]} (ENOENT)" if !File.exist?(file)
         else
           result.command = "test -f #{Shellwords.escape(file)} && echo exists"
           result.result = host.exec(result.command)
