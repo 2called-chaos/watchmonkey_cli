@@ -14,7 +14,6 @@ module WatchmonkeyCli
       opts = opts.reverse_merge(notifications: 1, progress: true, html: false, draw_delay: 1)
       opts[:progress] = false if opts[:html]
       app.instance_eval do
-        @opts[:stdout] = SilentOutput.new
         @platypus_status_cache = {
           errors: [],
         }
@@ -53,6 +52,8 @@ module WatchmonkeyCli
 
         # HTML output (fancy as fuck!)
         if opts[:html]
+          @opts[:stdout] = SilentOutput.new
+
           def escape_javascript str
             str.gsub(/(\|<\/|\r\n|\342\200\250|\342\200\251|[\n\r"'])/u) {|match| JS_ESCAPE_MAP[match] }
           end
