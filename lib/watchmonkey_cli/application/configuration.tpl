@@ -74,6 +74,24 @@ tcp_port :my_server, 21, message: "FTP offline"
 
 
 # -----
+# UDP port
+# -----
+# Attempts to establish a UDP connection to a given port.
+# NOTE: We send a message and attempt to receive a response.
+#       If the port is closed we get an IO exception and assume the port to be unreachable.
+#       If the port is open we most likely don't get ANY response and when the timeout
+#       is reached we assume the port to be reachable. This is not an exact check.
+# Host might be :local/SSH connection/String(IP/DNS)
+# Available options:
+#
+#   message    Error message when connection cannot be established
+#   timeout    Timeout in seconds to wait for a response (default = 2 seconds - false/nil = 1 hour)
+#
+udp_port "example.com", 9987, message: "Teamspeak offline"
+udp_port :my_server, 9987, message: "Teamspeak offline"
+
+
+# -----
 # FTP availability
 # -----
 # Login to an FTP account via net/ftp to check it's functionality.
