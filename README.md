@@ -18,7 +18,7 @@ If you need help or have problems [open an issue](https://github.com/2called-cha
 ## Features
   * Monitor external resources (Web, FTP, Server health via SSH)
   * Run once or loop forever with ReQueue (define intervals globally, per checker or per single test)
-  * Includes a selection of buildin checkers (basic *nix health, WWW availability & SSL expiration, FTP)
+  * Includes a selection of buildin checkers (see [list](https://github.com/2called-chaos/watchmonkey_cli/tree/master/lib/watchmonkey_cli/checkers) or [config template](https://github.com/2called-chaos/watchmonkey_cli/blob/master/lib/watchmonkey_cli/application/configuration.tpl))
 
 
 ## Requirements
