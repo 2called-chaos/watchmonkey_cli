@@ -1,5 +1,7 @@
 module WatchmonkeyCli
   class SshConnection
+    attr_reader :opts
+
     def initialize(id, opts = {}, &initializer)
       @id = id
 

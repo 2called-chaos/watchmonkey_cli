@@ -60,6 +60,20 @@ www_availability "https://example.com", ssl_expiration: { threshold: 4.weeks }
 
 
 # -----
+# TCP port
+# -----
+# Attempts to establish a TCP connection to a given port.
+# Host might be :local/SSH connection/String(IP/DNS)
+# Available options:
+#
+#   message    Error message when connection cannot be established
+#   timeout    Timeout in seconds to wait for a connection (default = 2 seconds - false/nil = 1 hour)
+#
+tcp_port "ftp.example.com", 21, message: "FTP offline"
+tcp_port :my_server, 21, message: "FTP offline"
+
+
+# -----
 # FTP availability
 # -----
 # Login to an FTP account via net/ftp to check it's functionality.
