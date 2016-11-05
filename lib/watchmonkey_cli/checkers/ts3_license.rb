@@ -35,7 +35,7 @@ module WatchmonkeyCli
             result.error! "TS3 license is about to expire within threshold (in #{human_seconds(end_at - Time.current)}, #{end_at})!"
             return
           else
-            result.info! "TS3 license for `#{page}' expires in #{human_seconds(end_at - Time.current)} (#{end_at})!"
+            result.info! "TS3 license expires in #{human_seconds(end_at - Time.current)} (#{end_at})!"
           end
         end
       end
