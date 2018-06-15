@@ -4,7 +4,7 @@ module WatchmonkeyCli
       self.checker_name = "ssl_expiration"
 
       def enqueue page, opts = {}
-        opts = { threshold: 1.months }.merge(opts)
+        opts = { threshold: 1.months, verify: true }.merge(opts)
         app.enqueue(self, page, opts)
       end
 
@@ -12,7 +12,7 @@ module WatchmonkeyCli
         uri = URI.parse(page)
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        http.verify_mode = opts[:verify] ? OpenSSL::SSL::VERIFY_PEER : OpenSSL::SSL::VERIFY_NONE
         cert = nil
         http.start do |h|
           cert = h.peer_cert
