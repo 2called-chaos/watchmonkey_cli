@@ -25,7 +25,7 @@ module WatchmonkeyCli
             return if status == "chunks"
             result.error! "#{dev} seems broken (expected U+, got `#{status}')" if status !~ /\[U+\]/
             if opts[:log_checking] && progress && m = progress.match(/\[[=>\.]+\]\s+([^\s]+)\s+=\s+([^\s]+)\s+\(([^\/]+)\/([^\)]+)\)\s+finish=([^\s]+)\s+speed=([^\s]+)/i)
-              info "#{dev} on is checking (status:#{m[1]}|done:#{m[2]}|eta:#{m[5]}|speed:#{m[6]}|blocks_done:#{m[3]}/#{m[4]})"
+              result.info "#{dev} is checking (status:#{m[1]}|done:#{m[2]}|eta:#{m[5]}|speed:#{m[6]}|blocks_done:#{m[3]}/#{m[4]})"
             end
           end
         end
