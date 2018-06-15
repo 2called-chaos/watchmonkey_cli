@@ -7,8 +7,9 @@ require "thread"
 require "monitor"
 require "optparse"
 require "open3"
+require "shellwords"
 require "net/ftp"
-require 'net/https'
+require "net/https"
 
 # 3rd party
 require "active_support"
@@ -16,7 +17,7 @@ require "active_support/core_ext"
 require "active_support/time_with_zone"
 begin ; require "pry" ; rescue LoadError ; end
 require "httparty"
-require 'net/ssh'
+require "net/ssh"
 
 # lib
 require "watchmonkey_cli/version"
