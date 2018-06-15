@@ -31,11 +31,12 @@ module WatchmonkeyCli
         end
 
         # body
+        fixed_body = result.result.body.force_encoding("utf-8")
         if rx = opts[:body]
           if rx.is_a?(String)
-            result.error! "body does not include `#{rx}'!" if !result.result.body.include?(rx)
+            result.error! "body does not include `#{rx}'!" if !fixed_body.include?(rx)
           elsif rx.is_a?(Regexp)
-            result.error! "body does not match `#{rx}'!" if !result.result.body.match(rx)
+            result.error! "body does not match `#{rx}'!" if !fixed_body.match(rx)
           end
         end
 
