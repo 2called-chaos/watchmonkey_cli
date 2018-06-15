@@ -72,7 +72,7 @@ module WatchmonkeyCli
         # =========
         hook :dequeue do |checker, args|
           opts = args.extract_options!
-          retry_in = opts[:every] if opts[:every].is_a?(Fixnum)
+          retry_in = opts[:every] if opts[:every].is_a?(Numeric)
           retry_in = @opts[:"default_requeue_#{checker.class.checker_name}"] if retry_in.nil?
           retry_in = @opts[:default_requeue] if retry_in.nil?
           if retry_in

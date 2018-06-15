@@ -176,6 +176,6 @@ unix_defaults :my_server, unix_mdadm: false, unix_df: { min_percent: 10 }
 
 # There are also the following shortcuts:
 unix_defaults :my_server, load: [1, 2, 3]  # Array(3) or false
-unix_defaults :my_server, memory_min: 10   # Fixnum or false
-unix_defaults :my_server, df_min: 10       # Fixnum or false
+unix_defaults :my_server, memory_min: 10   # Integer or false
+unix_defaults :my_server, df_min: 10       # Integer or false
 unix_defaults :my_server, mdadm: false     # true or false
