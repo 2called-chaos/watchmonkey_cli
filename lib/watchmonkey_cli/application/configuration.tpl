@@ -42,6 +42,7 @@ ssl_expiration "https://example.com", threshold: 3.months
 # Check if a website is reachable and responses properly.
 # Available options:
 #
+#    timeout    Maximum time to wait for request (default: 20 seconds)
 #     status    HTTP status code or array of status codes
 #       body    String (include check) or regular expression
 #    headers    { header => value }

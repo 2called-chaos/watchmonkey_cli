@@ -14,7 +14,7 @@ module WatchmonkeyCli
 
       def check! result, page, opts = {}
         begin
-          resp = HTTParty.get(page, no_follow: true, verify: false)
+          resp = HTTParty.get(page, no_follow: true, verify: false, timeout: opts[:timeout] || 20)
           result.result = resp
         rescue HTTParty::RedirectionTooDeep => e
           result.result = e.response
