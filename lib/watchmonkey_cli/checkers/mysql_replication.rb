@@ -46,7 +46,7 @@ module WatchmonkeyCli
             # value cast
             val = false if %w[no No].include?(val)
             val = true if %w[yes Yes].include?(val)
-            val = val.to_i if val =~ /^\d+$/
+            val = val.to_i if val.to_s =~ /^\d+$/
 
             r[key] = val
           end
