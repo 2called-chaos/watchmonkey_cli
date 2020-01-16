@@ -172,16 +172,29 @@ unix_mdadm :my_server, log_checking: false
 
 
 # -----
+# *nix CPUfreq scaling governor
+# -----
+# Checks if cpu scaling governor is set to correct value
+# Host might be :local/false/nil which will test locally (without SSH)
+# You can change the default message (The file ... does not exist) with the message option.
+# To see which modes your CPU supports: cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors
+# Available options: expect(performance), query_file(/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
+unix_cpu_governor :my_server
+unix_cpu_governor :my_server, expect: "powersave"
+
+
+# -----
 # *nix defaults
 # -----
-# Combines unix_load, unix_memory, unix_df and unix_mdadm.
+# Combines unix_load, unix_memory, unix_df, unix_mdadm and unix_cpu_governor.
 # You can pass options or disable individual checkers by passing
 # a hash whose keys are named after checkers.
 unix_defaults :my_server
 unix_defaults :my_server, unix_mdadm: false, unix_df: { min_percent: 10 }
 
 # There are also the following shortcuts:
-unix_defaults :my_server, load: [1, 2, 3]  # Array(3) or false
-unix_defaults :my_server, memory_min: 10   # Integer or false
-unix_defaults :my_server, df_min: 10       # Integer or false
-unix_defaults :my_server, mdadm: false     # true or false
+unix_defaults :my_server, load: [1, 2, 3]     # Array(3) or false
+unix_defaults :my_server, memory_min: 10      # Integer or false
+unix_defaults :my_server, df_min: 10          # Integer or false
+unix_defaults :my_server, mdadm: false        # true or false
+unix_defaults :my_server, cpu_governor: false # String or false

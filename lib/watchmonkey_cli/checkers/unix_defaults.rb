@@ -5,7 +5,7 @@ module WatchmonkeyCli
 
       def enqueue host, opts = {}
         return if app.running? # we only ever want to run this once to spawn sub checkers
-        opts = { unix_load: {}, unix_memory: {}, unix_df: {}, unix_mdadm: {} }.merge(opts)
+        opts = { unix_load: {}, unix_memory: {}, unix_df: {}, unix_mdadm: {}, unix_cpu_governor: {} }.merge(opts)
 
         host = app.fetch_connection(:loopback, :local) if !host || host == :local
         host = app.fetch_connection(:ssh, host) if host.is_a?(Symbol)
@@ -18,16 +18,19 @@ module WatchmonkeyCli
         opts[:unix_df][:min_percent] = opts[:df_min] if opts[:df_min]
         opts[:unix_df] = false if opts[:df_min] == false
         opts[:unix_mdadm] = false if opts[:mdadm] == false
+        opts[:unix_cpu_governor][:expect] = opts[:cpu_governor] if opts[:cpu_governor]
+        opts[:unix_cpu_governor] = false if opts[:cpu_governor] == false
         opts.delete(:load)
         opts.delete(:memory_min)
         opts.delete(:df_min)
         opts.delete(:mdadm)
+        opts.delete(:cpu_governor)
 
         app.enqueue(self, host, opts)
       end
 
       def check! result, host, opts = {}
-        [:unix_load, :unix_memory, :unix_df, :unix_mdadm].each do |which|
+        [:unix_load, :unix_memory, :unix_df, :unix_mdadm, :unix_cpu_governor].each do |which|
           # if opts[which] && sec = app.checkers[which.to_s]
           #   sec.check!(result, host, opts[which])
           # end
