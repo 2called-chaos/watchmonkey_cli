@@ -35,7 +35,7 @@ module WatchmonkeyCli
           #   sec.check!(result, host, opts[which])
           # end
           # app.enqueue_sub(self, which, host, opts[which]) if opts[which]
-          spawn_sub(which, host, opts[which].is_a?(Hash) ? opts[which] : {})
+          spawn_sub(which, host, opts[which].is_a?(Hash) ? opts[which] : {}) unless opts[which] == false
         end
       end
     end
