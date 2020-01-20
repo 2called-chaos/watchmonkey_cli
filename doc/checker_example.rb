@@ -12,6 +12,14 @@ module MyWatchmonkeyCheckers
     #     e.g. my_checker "http://google.com", some_option: true
     self.checker_name = "my_checker"
 
+    # Maximum amount of time this task may run before it gets killed.
+    # Set to 0/false to have no time limit whatsoever.
+    # Set to proc to evaluate at runtime
+    # Defaults to app.opts[:maxrt] if nil/unset
+    #self.maxrt = false
+    #self.maxrt = 5.minutes
+    #self.maxrt = ->(app, checker, args){ app.opts[:maxrt] && app.opts[:maxrt] * 2 }
+
     # Called by configuration defining a check with all the arguments.
     #   e.g. my_checker "http://google.com", some_option: true
     # Should invoke `app.enqueue` which will by default call `#check!` method with given arguments.

@@ -17,6 +17,14 @@ module WatchmonkeyCli
       @checker_name = name
     end
 
+    def self.maxrt
+      @maxrt
+    end
+
+    def self.maxrt= seconds
+      @maxrt = seconds
+    end
+
     module AppHelper
       def init_checkers!
         @checkers = {}

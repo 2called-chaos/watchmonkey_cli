@@ -101,7 +101,19 @@ module WatchmonkeyCli
             begin
               result = Checker::Result.new(checker, *a)
               checker.debug(result.str_running)
-              checker.safe(result.str_safe) { cb.call(result, *a) }
+              checker.safe(result.str_safe) {
+                timeout = checker.class.maxrt.nil? ? @opts[:maxrt] : checker.class.maxrt
+                timeout = timeout.call(self, checker, a) if timeout.respond_to?(:call)
+                begin
+                  if timeout && timeout > 0
+                    Timeout::timeout(timeout) { cb.call(result, *a) }
+                  else
+                    cb.call(result, *a)
+                  end
+                rescue Timeout::Error => ex
+                  result.error! "TIMEOUT: did not finish within #{timeout} seconds, task killed!"
+                end
+              }
               fire(:result_dump, result, a, checker)
               result.dump!
             ensure
