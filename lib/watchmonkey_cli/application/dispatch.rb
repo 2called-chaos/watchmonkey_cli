@@ -41,7 +41,7 @@ module WatchmonkeyCli
       ensure
         @running = false
         stop_checkers!
-        close_connections!
+        Timeout::timeout(@opts[:conclosewait]) { close_connections! } rescue false
         release_signals
       end
 
