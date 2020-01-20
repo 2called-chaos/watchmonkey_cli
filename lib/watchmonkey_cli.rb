@@ -33,6 +33,7 @@ require "watchmonkey_cli/application/dispatch"
 require "watchmonkey_cli/application"
 
 # require buildin checkers
+require "watchmonkey_cli/checkers/dev_pry"
 require "watchmonkey_cli/checkers/ftp_availability"
 require "watchmonkey_cli/checkers/mysql_replication"
 require "watchmonkey_cli/checkers/ssl_expiration"
