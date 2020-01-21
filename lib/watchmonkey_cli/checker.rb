@@ -176,8 +176,10 @@ module WatchmonkeyCli
             error "#{descriptor}retry #{tries} reason is `#{e.class}: #{e.message}'"
             e.backtrace.each{|l| debug "\t\t#{l}" }
           end
-          sleep 1
-          retry
+          unless $wm_runtime_exiting
+            sleep 1
+            retry
+          end
         end
         error "#{descriptor}retries exceeded"
       end
