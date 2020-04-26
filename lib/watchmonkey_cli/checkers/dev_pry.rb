@@ -5,7 +5,7 @@ module WatchmonkeyCli
       self.maxrt = false
 
       def enqueue host, opts = {}
-      	host = app.fetch_connection(:loopback, :local) if !host || host == :local
+        host = app.fetch_connection(:loopback, :local) if !host || host == :local
         host = app.fetch_connection(:ssh, host) if host.is_a?(Symbol)
         app.enqueue(self, host, opts)
       end
