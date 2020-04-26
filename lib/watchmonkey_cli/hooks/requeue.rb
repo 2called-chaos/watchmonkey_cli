@@ -101,6 +101,16 @@ module WatchmonkeyCli
             }]
           end
         end
+
+        def requeue_runall
+          return if $wm_runtime_exiting
+          sync do
+            debug "Running all queued tasks immediately!"
+            @requeue.each_with_index do |(run_at, callback), index|
+              @requeue[index][0] = Time.now
+            end
+          end
+        end
       end
     end
   end
