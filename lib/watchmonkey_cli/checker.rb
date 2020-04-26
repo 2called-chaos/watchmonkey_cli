@@ -62,6 +62,13 @@ module WatchmonkeyCli
         @spool = { error: [], info: [], debug: []}
       end
 
+      def uniqid additional = []
+        ([
+          self.class.name,
+          @args.map(&:to_s).to_s,
+        ] + additional).join("/")
+      end
+
       def sync &block
         @mutex.synchronize(&block)
       end
