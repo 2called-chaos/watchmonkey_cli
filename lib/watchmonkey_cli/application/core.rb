@@ -37,10 +37,25 @@ module WatchmonkeyCli
         end
       end
 
-      def fire which, *args
+      def fire which, *args, &block
         return if @disable_event_firing
-        sync { debug "[Event] Firing #{which} (#{@hooks[which].try(:length) || 0} handlers) #{args.map(&:class)}", 99 }
-        @hooks[which] && @hooks[which].each{|h| h.call(*args) }
+        sync { debug "[Event] Firing #{which} (#{@hooks[which].try(:length) || 0} handlers) #{args.map(&:class)}#{" HAS_BLOCK" if block}", 99 }
+        if block && (!@hooks[which] || @hooks[which].empty?)
+          block.call
+        else
+          if @hooks[which] && @hooks[which].any?
+            if block
+              _fire_around(@hooks[which], args, 0, &block)
+            else
+              @hooks[which].all?{|h| h.call(*args) }
+            end
+          end
+        end
+      end
+
+      def _fire_around hooks, args, index = 0, &block
+        return block.call unless hook = hooks[index]
+        hook.call(*args) { _fire_around(hooks, args, index + 1, &block) }
       end
 
 

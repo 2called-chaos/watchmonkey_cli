@@ -3,7 +3,11 @@ module WatchmonkeyCli
     module Dispatch
       def dispatch action = (@opts[:dispatch] || :help)
         if respond_to?("dispatch_#{action}")
-          send("dispatch_#{action}")
+          fire(:dispatch_before, action)
+          fire(:dispatch_around, action) do
+            send("dispatch_#{action}")
+          end
+          fire(:dispatch_after, action)
         else
           abort("unknown action #{action}", 1)
         end
