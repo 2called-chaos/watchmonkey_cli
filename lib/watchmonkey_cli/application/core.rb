@@ -116,7 +116,7 @@ module WatchmonkeyCli
             begin
               result = Checker::Result.new(checker, *a)
               checker.debug(result.str_running)
-              checker.safe(result.str_safe) {
+              checker.rsafe(result) {
                 timeout = checker.class.maxrt.nil? ? @opts[:maxrt] : checker.class.maxrt
                 timeout = timeout.call(self, checker, a) if timeout.respond_to?(:call)
                 begin

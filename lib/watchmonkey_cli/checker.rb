@@ -197,10 +197,12 @@ module WatchmonkeyCli
             e.backtrace.each{|l| resultobj.debug "\t\t#{l}" }
             resultobj.dump!
           end
-          sleep 1
-          retry
+          unless $wm_runtime_exiting
+            sleep 1
+            retry
+          end
         end
-        resultobj.error! "#{descriptor}retries exceeded"
+        resultobj.error! "retries exceeded"
         resultobj.dump!
       end
     end
