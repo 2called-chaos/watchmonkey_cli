@@ -22,6 +22,7 @@ module WatchmonkeyCli
         rescue Interrupt
           app.abort("Interrupted", 1)
         ensure
+          $wm_runtime_exiting = true
           app.fire(:wm_shutdown)
           app.debug "#{Thread.list.length} threads remain..."
         end
