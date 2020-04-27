@@ -71,7 +71,7 @@ module WatchmonkeyCli
                     <dt>Items in Queue</dt><dd class="qlength">#{@queue.length}</dd>
                     <dt>Items in ReQ</dt><dd class="rqlength">#{@requeue.length}</dd>
                     <dt>Workers</dt><dd class="workers">#{@threads.select{|t| t[:working] }.length}/#{@threads.length} working (#{@threads.select(&:alive?).length} alive)</dd>
-                    <dt>Threads</dt><dd class="tlength">#{Thread.list.length}</dd>
+                    <dt>Threads</dt><dd class="tlength">#{filtered_threads.length}</dd>
                     <dt>Processed entries</dt><dd class="processed">#{@processed}</dd>
                     <dt>Watching since</dt><dd>#{@boot}</dd>
                     <dt>Last draw</dt><dd class="lastdraw">#{Time.current}</dd>
@@ -93,7 +93,7 @@ module WatchmonkeyCli
                 $("dd.qlength").html("#{@queue.length}");
                 $("dd.rqlength").html("#{@requeue.length}");
                 $("dd.workers").html("#{@threads.select{|t| t[:working] }.length}/#{@threads.length} working#{ti}");
-                $("dd.tlength").html("#{Thread.list.length}");
+                $("dd.tlength").html("#{filtered_threads.length}");
                 $("dd.processed").html("#{@processed}");
                 $("dd.lastdraw").html("#{Time.current}");
                 $("pre.lasterrors").html("#{escape_javascript @platypus_status_cache[:errors].map{|t,e| "#{t}: #{e}" }.join("\n")}");

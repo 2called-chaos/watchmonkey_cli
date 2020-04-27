@@ -21,10 +21,22 @@ module WatchmonkeyCli
           app.haltpoint
         rescue Interrupt
           app.abort("Interrupted", 1)
+        rescue SystemExit
+          # silence
         ensure
           $wm_runtime_exiting = true
           app.fire(:wm_shutdown)
-          app.debug "#{Thread.list.length} threads remain..."
+          if app.filtered_threads.length > 1
+            app.error "[WARN] #{app.filtered_threads.length} threads remain (should be 1)..."
+            app.filtered_threads.each do |thr|
+              app.debug "[THR] #{Thread.main == thr ? "MAIN" : "THREAD"}\t#{thr.alive? ? "ALIVE" : "DEAD"}\t#{thr.inspect}", 10
+              thr.backtrace.each do |l|
+                app.debug "[THR]\t#{l}", 20
+              end
+            end
+          else
+            app.debug "1 thread remains..."
+          end
         end
       end
     end

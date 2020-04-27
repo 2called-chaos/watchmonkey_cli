@@ -37,7 +37,7 @@ module WatchmonkeyCli
               puts "     Queue: #{@queue.length}"
               puts "   Requeue: #{@requeue.length}"
               puts "   Workers: #{@threads.select{|t| t[:working] }.length}/#{@threads.length} working (#{@threads.select(&:alive?).length} alive)"
-              puts "   Threads: #{Thread.list.length}"
+              puts "   Threads: #{filtered_threads.length}"
               # puts "            #{@threads.select(&:alive?).length} alive"
               # puts "            #{@threads.select{|t| t.status == "run" }.length} running"
               # puts "            #{@threads.select{|t| t.status == "sleep" }.length} sleeping"
