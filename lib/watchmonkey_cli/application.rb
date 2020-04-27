@@ -93,10 +93,15 @@ module WatchmonkeyCli
         opts.on("-z", "Do not check for updates on GitHub (with -v/--version)") { @opts[:check_for_updates] = false }
         opts.on("--dump-core", "for developers") { @opts[:dump] = true }
       end
+      fire(:optparse_init, @optparse)
     end
 
     def parse_params
-      @optparse.parse!(@argv)
+      fire(:optparse_parse_before, @optparse)
+      fire(:optparse_parse_around, @optparse) do
+        @optparse.parse!(@argv)
+      end
+      fire(:optparse_parse_after, @optparse)
     rescue OptionParser::ParseError => e
       abort(e.message)
       dispatch(:help)
