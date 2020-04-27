@@ -51,7 +51,9 @@ module WatchmonkeyCli
         else
           if @hooks[which] && @hooks[which].any?
             if block
-              _fire_around(@hooks[which], args, 0, &block)
+              catch :abort do
+                _fire_around(@hooks[which], args, 0, &block)
+              end
             else
               @hooks[which].all?{|h| h.call(*args) }
             end
@@ -61,7 +63,11 @@ module WatchmonkeyCli
 
       def _fire_around hooks, args, index = 0, &block
         return block.call unless hook = hooks[index]
-        hook.call(*args) { _fire_around(hooks, args, index + 1, &block) }
+        skip = catch(:skip) {
+          hook.call(*args) { _fire_around(hooks, args, index + 1, &block) }
+          nil
+        }
+        _fire_around(hooks, args, index + 1, &block) if skip
       end
 
 
