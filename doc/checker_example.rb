@@ -23,6 +23,7 @@ module MyWatchmonkeyCheckers
     # Called by configuration defining a check with all the arguments.
     #   e.g. my_checker "http://google.com", some_option: true
     # Should invoke `app.enqueue` which will by default call `#check!` method with given arguments.
+    # Must have options as last argument!
     def enqueue host, opts = {}
       opts = { some_option: false }.merge(opts)
 
@@ -36,6 +37,7 @@ module MyWatchmonkeyCheckers
     end
 
     # First argument is the result object, all other arguments came from `app.enqueue` call.
+    # Must have options as last argument!
     def check! result, host, opts = {}
       # Do your checks and modify the result object.
       # Debug messages will not show if -s/--silent or -q/--quiet argument is passed.
