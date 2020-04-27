@@ -418,7 +418,7 @@ module WatchmonkeyCli
                 when "/start"
                   if event.user_data
                     event.reply [].tap{|m|
-                      m << "<b>Welcome!</b> I will tell you if something is wrong with bmonkeys infrastructure."
+                      m << "<b>Welcome!</b> I will tell you if something is wrong with your infrastructure."
                       m << "Your current tags are: #{event.user_data[1].join(", ")}"
                       m << "<b>You have admin permissions!</b>" if event.user_admin?
                       m << "\nInstead of muting me in Telegram you can silence me for a while with <code>/mute 6h 30m</code>."
