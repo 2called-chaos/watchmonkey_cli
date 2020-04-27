@@ -103,8 +103,10 @@ module WatchmonkeyCli
       def close_connections!
         @connections.each do |type, clist|
           clist.each do |id, con|
-            debug "[SHUTDOWN] closing #{type} connection #{id} #{con}"
-            con.close!
+            if con.established?
+              debug "[SHUTDOWN] closing #{type} connection #{id} #{con}"
+              con.close!
+            end
           end
         end
       end

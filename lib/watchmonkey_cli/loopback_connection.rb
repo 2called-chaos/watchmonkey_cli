@@ -1,7 +1,10 @@
 module WatchmonkeyCli
   class LoopbackConnection
+    attr_reader :opts, :established
+
     def initialize(id, opts = {}, &initializer)
       @id = id
+      @established = false
       @opts = {}.merge(opts)
       # @mutex = Monitor.new
       initializer.try(:call, @opts)
@@ -13,6 +16,10 @@ module WatchmonkeyCli
 
     def name
       "lo:#{@id}"
+    end
+
+    def established?
+      @established
     end
 
     def sync &block

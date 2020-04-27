@@ -4,6 +4,7 @@ module WatchmonkeyCli
 
     def initialize(id, opts = {}, &initializer)
       @id = id
+      @established = false
 
       if opts.is_a?(String)
         u, h = opts.split("@", 2)
@@ -30,6 +31,10 @@ module WatchmonkeyCli
       "ssh:#{@id}"
     end
 
+    def established?
+      @established
+    end
+
     def sync &block
       @mutex.synchronize(&block)
     end
@@ -42,7 +47,12 @@ module WatchmonkeyCli
     end
 
     def connection
-      sync { @ssh ||= Net::SSH.start(nil, nil, @opts) }
+      sync {
+        @ssh ||= begin
+          @established = true
+          Net::SSH.start(nil, nil, @opts)
+        end
+      }
     end
 
     def close!
