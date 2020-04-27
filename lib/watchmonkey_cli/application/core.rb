@@ -121,6 +121,12 @@ module WatchmonkeyCli
           @queue << [checker, a, ->(*a) {
             begin
               result = Checker::Result.new(checker, *a)
+
+              # assign tags
+              taskopts = a.extract_options!
+              result.tags = taskopts[:tags] || []
+              a << taskopts
+
               checker.debug(result.str_running)
               checker.rsafe(result) {
                 timeout = checker.class.maxrt.nil? ? @opts[:maxrt] : checker.class.maxrt

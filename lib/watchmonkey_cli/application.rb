@@ -65,6 +65,8 @@ module WatchmonkeyCli
         silent: false,           # -s flag
         quiet: false,            # -q flag
         stdout: STDOUT,          # (internal) STDOUT redirect
+        tag_only: [],            # -o flag
+        tag_except: [],          # -e flag
       }
       init_params
       yield(self)
@@ -78,6 +80,8 @@ module WatchmonkeyCli
         opts.on("--generate-config [myconfig]", "Generates a example config in ~/.watchmonkey") {|s| @opts[:dispatch] = :generate_config; @opts[:config_name] = s }
         opts.on("-l", "--log [file]", "Log to file, defaults to ~/.watchmonkey/logs/watchmonkey.log") {|s| @opts[:logfile] = s || logger_filename }
         opts.on("-t", "--threads [NUM]", Integer, "Amount of threads to be used for checking (default: 10)") {|s| @opts[:threads] = s }
+        opts.on("-e", "--except tag1,tag2", Array, "Don't run tasks tagged with given tags") {|s| @opts[:tag_except] = s.map(&:to_sym) }
+        opts.on("-o", "--only tag1,tag2", Array, "Only run tasks tagged with given tags") {|s| @opts[:tag_only] = s.map(&:to_sym) }
         opts.on("-s", "--silent", "Only print errors and infos") { @opts[:silent] = true }
         opts.on("-q", "--quiet", "Only print errors") { @opts[:quiet] = true }
 

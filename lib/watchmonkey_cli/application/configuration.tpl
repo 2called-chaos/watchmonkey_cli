@@ -1,5 +1,26 @@
 # This is a Ruby file!
 
+# =========================================
+# = Step 0: Tag all checkers in this file =
+# =========================================
+
+# All checkers you define after this will get these
+# base tags (you can pass additional ones).
+# Do note that you can call this method multiple
+# times and it will replace your base tags for
+# all checkers to follow, base tags will be cleared
+# upon reaching the end of the file.
+
+tag_all! :production, :critical
+
+# You can use additional tags on any checker by passing
+# a `tags` option consisting of an Array of strings or symbols.
+#   e.g.:
+#     some_checker :some_target, tags: %w[critical foo bar]
+
+
+
+
 # =================================
 # = Step 1: Setup SSH connections =
 # =================================

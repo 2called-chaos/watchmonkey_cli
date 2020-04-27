@@ -43,6 +43,8 @@ To get a list of available options invoke Watchmonkey with the `--help` or `-h` 
             --generate-config [myconfig] Generates a example config in ~/.watchmonkey
         -l, --log [file]                 Log to file, defaults to ~/.watchmonkey/logs/watchmonkey.log
         -t, --threads [NUM]              Amount of threads to be used for checking (default: 10)
+        -e, --except tag1,tag2           Don't run tasks tagged with given tags
+        -o, --only tag1,tag2             Only run tasks tagged with given tags
         -s, --silent                     Only print errors and infos
         -q, --quiet                      Only print errors
 

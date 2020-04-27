@@ -62,6 +62,7 @@ module WatchmonkeyCli
       def initialize app, file
         @app = app
         @file = file
+        @tags = []
         begin
           eval File.read(file, encoding: "utf-8"), binding, file
         rescue
@@ -74,9 +75,28 @@ module WatchmonkeyCli
         @app.fetch_connection(:ssh, name, opts, &b)
       end
 
+      def tag_all! *tags
+        @tags = tags.map(&:to_sym)
+      end
+
       def method_missing meth, *args, &block
         if c = @app.checkers[meth.to_s]
-          c.enqueue(*args)
+          opts = args.extract_options!
+          only = @app.opts[:tag_only]
+          except = @app.opts[:tag_except]
+          tags = (@tags + (opts[:tags] || []).map(&:to_sym)).uniq
+          if only.any?
+            if tags.any?{|t| only.include?(t) }
+              if tags.any?{|t| except.include?(t) }
+                return @app.debug "Skipping #{meth} with #{args} and #{opts} due to tag_except filter..."
+              end
+            else
+              return @app.debug "Skipping #{meth} with #{args} and #{opts} due to tag_only filter..."
+            end
+          elsif tags.any?{|t| except.include?(t) }
+            return @app.debug "Skipping #{meth} with #{args} and #{opts} due to tag_except filter..."
+          end
+          c.enqueue(*args, opts.merge(tags: tags))
         else
           super
         end

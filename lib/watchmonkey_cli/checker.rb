@@ -52,13 +52,14 @@ module WatchmonkeyCli
 
     class Result
       attr_reader :checker, :type, :args
-      attr_accessor :result, :command, :data
+      attr_accessor :result, :command, :data, :tags
 
       def initialize checker, *args
         @checker = checker
         @args = args
         @mutex = Monitor.new
         @type = :info
+        @tags = []
         @spool = { error: [], info: [], debug: []}
       end
 
