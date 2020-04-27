@@ -43,3 +43,59 @@ if @argv.delete("--platypus")
 
   @opts[:colorize] = false # doesn't render in platypus
 end
+
+
+
+# Integrate Telegram notifications
+# For options refer to the source code:
+#     https://github.com/2called-chaos/watchmonkey_cli/blob/master/lib/watchmonkey_cli/hooks/telegram_bot.rb
+if @argv.delete("--telegram")
+  require "watchmonkey_cli/hooks/telegram_bot"
+  WatchmonkeyCli::TelegramBot.hook!(self, {
+    # to create a bot refer to https://core.telegram.org/bots#6-botfather
+    api_key: "123456789:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+
+    # poll timeout, the longer this is (in seconds) the longer it will take to gracefully shut down
+    timeout: 5,
+
+    # optionally log incoming messages
+    #logger: Logger.new(STDOUT),
+
+    # purge old throttle data, default: 30.days
+    #throttle_retention: 30.days,
+
+    # retry sending messages that failed, default: false
+    # Not recommended since on connection failure a HUGE amount of messages will accumulate
+    # and spam you (and reach rate limits) upon connection restore.
+    #retry_on_egress_failure: false,
+
+    # configure your notification targets, if not listed you can't interact with the bot
+    notify: [
+      [
+        # your telegram ID, if you try talking to the bot it will tell you your ID
+        987654321,
+
+        # flags
+        #   - :all        -- same as :debug, :info, :error (not recommended)
+        #   - :debug      -- send all debug messages (not recommended)
+        #   - :info       -- send all info messages (not recommended)
+        #   - :error      -- send all error messages (RECOMMENDED)
+        #   - :admin_flag -- allows access to some commands (/wm_shutdown /stats)
+        [:error, :admin_flag],
+
+        # options (all optional, you can comment them out but leave the {})
+        {
+          # throttle: seconds(int) -- throttle messages by checker uniqid for this long (0/false = no throttle, default)
+          throttle: 15*60,
+
+          # only: Array(string, symbol) -- only notify when tagged with given tags
+          only: %w[production critical],
+
+          # except: Array(string, symbol) -- don't notify when tagged with given tags (runs after only-check)
+          except: %w[database],
+        }
+      ],
+      [123456789, [:error], { throttle: 30.minutes }]
+    ],
+  })
+end

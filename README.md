@@ -4,10 +4,11 @@ Watchmonkey is a very simple tool to monitor resources with Ruby without the nee
 
 Before looking any further you might want to know:
 
-  * There is no escalation or notification system but you may add it yourself
-  * I created this for being used with [Platypus](http://sveinbjorn.org/platypus) hence the [Platypus Hook](https://github.com/2called-chaos/watchmonkey_cli/blob/master/lib/watchmonkey_cli/hooks/platypus.rb)
+  * There is no escalation or notification system (except experimental telegram bot) but you may add it yourself
+  * I originally created this for being used with [Platypus](http://sveinbjorn.org/platypus) hence the [Platypus Hook](https://github.com/2called-chaos/watchmonkey_cli/blob/master/lib/watchmonkey_cli/hooks/platypus.rb)
   * This is how the text output looks like: [Screenshot](http://imgur.com/8yLYnKb)
   * This is how the Platypus support looks like: [ProgressBar](http://imgur.com/Vd8ZD7A) [HTML/WebView](http://imgur.com/5FwmWFZ)
+  * This is how Telegram Bot looks for now: [Telegram Screenshot](http://imgur.com/HBONi51)
 
 ---
 
@@ -82,6 +83,15 @@ If you want to monitor something that is not covered by the buildin handlers you
 ### ReQueue
 By default Watchmonkey will run all tests once and then exit. This addon will enable Watchmonkey to run in a loop and run tests on a periodic interval.
 Since this seems like a core feature it might get included directly into Watchmonkey but for now take a look at the [application configuration file](https://github.com/2called-chaos/watchmonkey_cli/blob/master/doc/config_example.rb) and [ReQueue source code](https://github.com/2called-chaos/watchmonkey_cli/blob/master/lib/watchmonkey_cli/hooks/requeue.rb) for integration examples.
+
+### Telegram Bot
+Notify via Telegram. Experimental. Refer to [application configuration file](https://github.com/2called-chaos/watchmonkey_cli/blob/master/doc/config_example.rb) and [TelegramBot source code](https://github.com/2called-chaos/watchmonkey_cli/blob/master/lib/watchmonkey_cli/hooks/telegram_bot.rb) for further information.
+
+* works with ReQueue (wouldn't make much sense otherwise huh?)
+* optional per-user message throttling via checker uniqid (checker name + host + arguments)
+* optional per-user only/except filters based on tags
+* planned: robust telegram connection failure handling
+* planned: per-user regex exclusion filters
 
 ### Platypus support
 [Platypus](http://sveinbjorn.org/platypus) is a MacOS software to create dead simple GUI wrappers for scripts. There is buildin support for the interface types ProgressBar and WebView. For integration examples take a look at the [application configuration file](https://github.com/2called-chaos/watchmonkey_cli/blob/master/doc/config_example.rb) and [Platypus hook source code](https://github.com/2called-chaos/watchmonkey_cli/blob/master/lib/watchmonkey_cli/hooks/platypus.rb).

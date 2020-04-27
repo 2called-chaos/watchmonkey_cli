@@ -42,6 +42,7 @@ module WatchmonkeyCli
               # puts "            #{@threads.select{|t| t.status == "run" }.length} running"
               # puts "            #{@threads.select{|t| t.status == "sleep" }.length} sleeping"
               puts " Processed: #{@processed}"
+              puts "  Promises: #{@telegram_bot_egress_promises.length}" if @telegram_bot_egress_promises
               puts "========== //STATUS =========="
             end
           end
