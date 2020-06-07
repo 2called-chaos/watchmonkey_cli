@@ -84,7 +84,21 @@ module WatchmonkeyCli
           opts = args.extract_options!
           only = @app.opts[:tag_only]
           except = @app.opts[:tag_except]
-          tags = (@tags + (opts[:tags] || []).map(&:to_sym)).uniq
+
+          # build tags
+          tags = (@tags + (opts[:tags] || []).map(&:to_sym))
+          if @app.opts[:autotag]
+            tags << :"WMC-#{c.class.checker_name}" # checker name
+            if args[0].is_a?(Symbol)
+              tags << :"WMS-#{args[0]}" # ssh/local connection
+            elsif args[0].is_a?(String) && args[0].match(/\Ahttp(s)?:\/\//i)
+              uri = URI.parse(args[0]) rescue false
+              tags << :"WMH-#{uri.hostname.gsub(".", "_")}" if uri # hostname from URL
+            end
+          end
+          tags = tags.uniq
+          @app.tag_list.merge(tags)
+
           if only.any?
             if tags.any?{|t| only.include?(t) }
               if tags.any?{|t| except.include?(t) }

@@ -1,6 +1,6 @@
 module WatchmonkeyCli
   class Application
-    attr_reader :opts, :checkers, :connections, :threads, :queue, :hooks, :processed
+    attr_reader :opts, :checkers, :connections, :threads, :queue, :hooks, :processed, :tag_list
     include Helper
     include OutputHelper
     include Colorize
@@ -49,6 +49,7 @@ module WatchmonkeyCli
       @monitor = Monitor.new
       @threads = []
       @queue = Queue.new
+      @tag_list = Set.new
       @processed = 0
       @running = false
       @opts = {
@@ -62,6 +63,7 @@ module WatchmonkeyCli
         conclosewait: 10,        # max seconds to wait for connections to be closed (may never if they got killed by maxrt)
         loop_forever: false,     # (internal) loop forever (app mode)
         loop_wait_empty: 1,      # (internal) time to wait in thread if queue is empty
+        autotag: true,           # (internal) if true checkers will get auto tags for checker name and hostname/connection
         silent: false,           # -s flag
         quiet: false,            # -q flag
         stdout: STDOUT,          # (internal) STDOUT redirect
