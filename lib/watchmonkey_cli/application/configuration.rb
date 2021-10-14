@@ -59,10 +59,11 @@ module WatchmonkeyCli
         end
       end
 
-      def initialize app, file
+      def initialize app, file = nil, tags = []
         @app = app
         @file = file
-        @tags = []
+        @tags = tags
+        return unless file
         begin
           eval File.read(file, encoding: "utf-8"), binding, file
         rescue

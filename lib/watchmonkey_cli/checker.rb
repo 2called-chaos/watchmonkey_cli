@@ -163,6 +163,10 @@ module WatchmonkeyCli
       end
     end
 
+    def blank_config tags = []
+      Application::Configuration.new(app, nil, tags)
+    end
+
     # def to_s
     #   string = "#<#{self.class.name}:#{self.object_id} "
     #   fields = self.class.inspector_fields.map{|field| "#{field}: #{self.send(field)}"}

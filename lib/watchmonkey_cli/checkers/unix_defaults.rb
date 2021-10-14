@@ -35,7 +35,9 @@ module WatchmonkeyCli
           #   sec.check!(result, host, opts[which])
           # end
           # app.enqueue_sub(self, which, host, opts[which]) if opts[which]
-          spawn_sub(which, host, opts[which].is_a?(Hash) ? opts[which] : {}) unless opts[which] == false
+          #spawn_sub(which, host, (opts[which].is_a?(Hash) ? opts[which] : {}).merge(tags: result.tags)) unless opts[which] == false
+          stags = (opts[:tags] || []).reject{|t| t.to_s.start_with?("WMC-") }
+          blank_config(stags).send(which, host, (opts[which].is_a?(Hash) ? opts[which] : {})) unless opts[which] == false
         end
       end
     end

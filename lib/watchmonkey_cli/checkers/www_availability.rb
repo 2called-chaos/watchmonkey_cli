@@ -9,7 +9,8 @@ module WatchmonkeyCli
         # if available enable ssl_expiration support
         if page.start_with?("https://") && opts[:ssl_expiration] != false && !app.running?
           sopts = { timeout: opts[:timeout] }.merge(opts[:ssl_expiration].is_a?(Hash) ? opts[:ssl_expiration] : {})
-          spawn_sub("ssl_expiration", page, sopts)
+          stags = (opts[:tags] || []).reject{|t| t.to_s.start_with?("WMC-") }
+          blank_config(stags).ssl_expiration(page, sopts)
         end
       end
 
