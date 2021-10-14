@@ -57,7 +57,7 @@ ssh_connection :my_server, host: "wheel@example.com", port: 23 # additional opti
 #
 #    timeout    Maximum time to wait for request (default: 20 seconds)
 #     verify    If enabled the peer will be verified (default: true)
-#  threshold    Minimum certificate lifetime before showing warnings (default: 1.month)
+#  threshold    Minimum certificate lifetime before showing warnings (default: 28.days)
 #
 ssl_expiration "https://example.com", threshold: 3.months
 

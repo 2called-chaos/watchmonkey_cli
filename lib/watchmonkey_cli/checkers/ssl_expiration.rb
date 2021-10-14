@@ -4,7 +4,7 @@ module WatchmonkeyCli
       self.checker_name = "ssl_expiration"
 
       def enqueue page, opts = {}
-        opts = { threshold: 1.months, verify: true, timeout: 20 }.merge(opts)
+        opts = { threshold: 28.days, verify: true, timeout: 20 }.merge(opts)
         app.enqueue(self, page, opts)
       end
 
