@@ -4,7 +4,7 @@ module WatchmonkeyCli
       self.checker_name = "ftp_availability"
 
       def enqueue host, opts = {}
-        opts = { threshold: 1.months }.merge(opts)
+        opts = {}.merge(opts)
         app.enqueue(self, host, opts)
       end
 
