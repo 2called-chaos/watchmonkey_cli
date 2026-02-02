@@ -3,7 +3,7 @@ module WatchmonkeyCli
     module Core
       def filtered_threads
         Thread.list.reject do |thr|
-          thr.backtrace[0]["gems/concurrent-ruby"] rescue false
+          @opts[:filtered_threads].any?{ thr.backtrace[0][_1] }
         end
       end
 

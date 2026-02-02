@@ -69,6 +69,10 @@ module WatchmonkeyCli
         stdout: STDOUT,          # (internal) STDOUT redirect
         tag_only: [],            # -o flag
         tag_except: [],          # -e flag
+        filtered_threads: [      # (internal) stray-thread-detection exclusion list
+          "gems/concurrent-ruby",
+          "gems/timeout",
+        ],
       }
       init_params
       yield(self)
