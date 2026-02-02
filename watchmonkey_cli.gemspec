@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = WatchmonkeyCli::VERSION
   spec.authors       = ["Sven Pachnit"]
   spec.email         = ["sven@bmonkeys.net"]
-  spec.summary       = %q{Watchmonkey CLI - dead simple agentless monitoring via SSH, HTTP, FTP, etc.}
+  spec.summary       = %q{Watchmonkey CLI - dead simple agentless monitoring via SSH, HTTP, FTP, etc}
   spec.description   = %q{If you want an easy way to monitor services without the need of installing agents let a monkey do the job by polling status information via transport protocols.}
   spec.homepage      = "https://github.com/2called-chaos/watchmonkey_cli"
   spec.license       = "MIT"
