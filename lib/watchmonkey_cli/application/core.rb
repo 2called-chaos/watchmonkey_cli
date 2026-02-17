@@ -3,7 +3,7 @@ module WatchmonkeyCli
     module Core
       def filtered_threads
         Thread.list.reject do |thr|
-          @opts[:filtered_threads].any?{ thr.backtrace[0][_1] }
+          @opts[:filtered_threads].any?{ thr.backtrace.first&.include?(_1) }
         end
       end
 
