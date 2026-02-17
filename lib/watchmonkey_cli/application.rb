@@ -60,6 +60,7 @@ module WatchmonkeyCli
         debug: false,            # -d flag
         threads: 10,             # -t flag
         maxrt: 120.seconds,      # max runtime of a single task after which it will be terminated (may break SSH connection), 0/false to not limit runtime
+        max_retry: 3,            # max retry on error for a single task
         conclosewait: 10,        # max seconds to wait for connections to be closed (may never if they got killed by maxrt)
         loop_forever: false,     # (internal) loop forever (app mode)
         loop_wait_empty: 1,      # (internal) time to wait in thread if queue is empty

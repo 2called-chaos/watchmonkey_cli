@@ -136,7 +136,9 @@ module WatchmonkeyCli
               a << taskopts
 
               checker.debug(result.str_running)
-              checker.rsafe(result) {
+              max_retry = checker.class.max_retry.nil? ? @opts[:max_retry] : checker.class.max_retry
+              max_retry = max_retry.call(self, checker, a) if max_retry.respond_to?(:call)
+              checker.rsafe(result, max_retry: max_retry) {
                 timeout = checker.class.maxrt.nil? ? @opts[:maxrt] : checker.class.maxrt
                 timeout = timeout.call(self, checker, a) if timeout.respond_to?(:call)
                 begin

@@ -25,6 +25,14 @@ module WatchmonkeyCli
       @maxrt = seconds
     end
 
+    def self.max_retry
+      @max_retry
+    end
+
+    def self.max_retry= num
+      @max_retry = num
+    end
+
     module AppHelper
       def init_checkers!
         @checkers = {}
@@ -177,13 +185,13 @@ module WatchmonkeyCli
       @app.fetch_connection(:loopback, :local)
     end
 
-    def safe descriptor = nil, &block
+    def safe descriptor = nil, max_retry: 3, &block
       tries = 0
       begin
         tries += 1
         block.call
       rescue StandardError => e
-        unless tries > 3
+        unless tries > max_retry
           app.sync do
             error "#{descriptor}retry #{tries} reason is `#{e.class}: #{e.message}'"
             e.backtrace.each{|l| debug "\t\t#{l}" }
@@ -197,13 +205,13 @@ module WatchmonkeyCli
       end
     end
 
-    def rsafe resultobj, &block
+    def rsafe resultobj, max_retry: 3, &block
       tries = 0
       begin
         tries += 1
         block.call
       rescue StandardError => e
-        unless tries > 3
+        unless tries > max_retry
           resultobj.sync do
             resultobj.error! "retry #{tries} reason is `#{e.class}: #{e.message}'"
             e.backtrace.each{|l| resultobj.debug "\t\t#{l}" }

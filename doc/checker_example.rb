@@ -20,6 +20,12 @@ module MyWatchmonkeyCheckers
     #self.maxrt = 5.minutes
     #self.maxrt = ->(app, checker, args){ app.opts[:maxrt] && app.opts[:maxrt] * 2 }
 
+    # Maximum amount of time this task may retry on error.
+    # Set to proc to evaluate at runtime
+    # Defaults to app.opts[:max_retry] if nil/unset
+    #self.max_retry = 1
+    #self.max_retry = ->(app, checker, args){ app.opts[:max_retry] && app.opts[:max_retry] * 2 }
+
     # Called by configuration defining a check with all the arguments.
     #   e.g. my_checker "http://google.com", some_option: true
     # Should invoke `app.enqueue` which will by default call `#check!` method with given arguments.
