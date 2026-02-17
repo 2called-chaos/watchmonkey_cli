@@ -126,6 +126,14 @@ module WatchmonkeyCli
           sync { @type == meth }
         end
       end
+
+      def fatal! msg = nil
+        sync do
+          @spool[:error] << msg if msg
+          @type = :error
+          throw(:checker, :fatal)
+        end
+      end
     end
 
     # -------------------
@@ -207,11 +215,19 @@ module WatchmonkeyCli
 
     def rsafe resultobj, max_retry: 3, &block
       tries = 0
+      checker_ctrl = false
+
       begin
         tries += 1
-        block.call
+        checker_ctrl = catch(:checker, &block)
       rescue StandardError => e
-        unless tries > max_retry
+        if checker_ctrl == :fatal
+          resultobj.sync do
+            resultobj.error! "fatal reason is `#{e.class}: #{e.message}'"
+            e.backtrace.each{|l| resultobj.debug "\t\t#{l}" }
+            resultobj.dump!
+          end
+        elsif tries <= max_retry
           resultobj.sync do
             resultobj.error! "retry #{tries} reason is `#{e.class}: #{e.message}'"
             e.backtrace.each{|l| resultobj.debug "\t\t#{l}" }
@@ -221,9 +237,10 @@ module WatchmonkeyCli
             sleep 1
             retry
           end
+        else
+          resultobj.error! "retries exceeded"
+          resultobj.dump!
         end
-        resultobj.error! "retries exceeded"
-        resultobj.dump!
       end
     end
 
